@@ -1,0 +1,103 @@
+{
+  "summary": {
+    "passed": 9,
+    "failed": 8,
+    "duration": 305.01072788238525,
+    "success_rate": 52.94117647058824
+  },
+  "results": [
+    {
+      "name": "Count projects query",
+      "status": "PASS",
+      "actual": "Found 1 record(s):\n\nRecord 1: COUNT(*): 4"
+    },
+    {
+      "name": "List all users query",
+      "status": "PASS",
+      "actual": "Found 5 record(s):\n\nRecord 1: id: 1 | username: john_doe | full_name: John Doe | department: Enginee"
+    },
+    {
+      "name": "Sales data query",
+      "status": "PASS",
+      "actual": "Found 4 record(s):\n\nRecord 1: id: 1 | product_name: Loom4 Pro License | sales_amount: 299.99 | regio"
+    },
+    {
+      "name": "Projects with owners query",
+      "status": "PASS",
+      "actual": "Found 2 record(s):\n\nRecord 1: project_name: Customer Dashboard | full_name: John Doe\nRecord 2: proje"
+    },
+    {
+      "name": "Projects by sales relationship detection",
+      "status": "FAIL",
+      "expected": "Should detect projects.owner_id = sales.user_id relationship",
+      "actual": null
+    },
+    {
+      "name": "User sales aggregation query",
+      "status": "PASS",
+      "actual": "I had trouble understanding your database question. Let me help you find what you're looking for:\n\n\ud83d\udca1"
+    },
+    {
+      "name": "Total sales amount query",
+      "status": "PASS",
+      "actual": "Found 1 record(s):\n\nRecord 1: total_sales: 1649.96"
+    },
+    {
+      "name": "Sales by region query",
+      "status": "PASS",
+      "actual": "Found 3 record(s):\n\nRecord 1: region: Europe | total_sales: 149.99\nRecord 2: region: Asia Pacific | "
+    },
+    {
+      "name": "Project budgets query",
+      "status": "PASS",
+      "actual": "Found 4 record(s):\n\nRecord 1: budget: 150000.00\nRecord 2: budget: 75000.00\nRecord 3: budget: 120000."
+    },
+    {
+      "name": "Invalid column guidance",
+      "status": "FAIL",
+      "expected": "Should suggest 'sales_amount' when 'sales_revenue' is used",
+      "actual": null
+    },
+    {
+      "name": "Complex relationship guidance provided",
+      "status": "FAIL",
+      "expected": "Should provide relationship suggestions",
+      "actual": null
+    },
+    {
+      "name": "Available tables information",
+      "status": "FAIL",
+      "expected": "['projects', 'sales', 'users']",
+      "actual": null
+    },
+    {
+      "name": "Specific project query",
+      "status": "PASS",
+      "actual": "Found 1 record(s):\n\nRecord 1: id: 1 | project_name: Loom4 Analytics Platform | status: active | budg"
+    },
+    {
+      "name": "User-specific activity query",
+      "status": "FAIL",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "Department-based query",
+      "status": "FAIL",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "Dynamic indirect relationship detection",
+      "status": "FAIL",
+      "expected": "Should detect projects.owner_id = sales.user_id relationship",
+      "actual": null
+    },
+    {
+      "name": "Direct relationship detection",
+      "status": "FAIL",
+      "expected": "Should detect sales.user_id = users.id relationship",
+      "actual": null
+    }
+  ]
+}
