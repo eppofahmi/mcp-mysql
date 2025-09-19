@@ -2,10 +2,25 @@ import asyncio
 import logging
 import os
 import sys
+import json
+from pathlib import Path
 from mysql.connector import connect, Error
 from mcp.server import Server
 from mcp.types import Resource, Tool, TextContent
 from pydantic import AnyUrl
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    # Load .env file from the current directory
+    env_path = Path('.') / '.env'
+    if env_path.exists():
+        load_dotenv(env_path)
+        print(f"Loaded environment from: {env_path.absolute()}")
+    else:
+        print(f"No .env file found at: {env_path.absolute()}")
+except ImportError:
+    print("python-dotenv not installed, using system environment variables only")
 
 # Configure logging
 logging.basicConfig(
@@ -32,6 +47,30 @@ def get_db_config():
         "sql_mode": os.getenv("MYSQL_SQL_MODE", "TRADITIONAL")
     }
 
+    # TiDB Cloud / SSL Configuration
+    use_ssl = os.getenv("USE_SSL", "false").lower() == "true"
+    if use_ssl:
+        ssl_config = {}
+
+        # SSL CA certificate path
+        ssl_ca = os.getenv("SSL_CA")
+        if ssl_ca and os.path.exists(ssl_ca):
+            ssl_config["ssl_ca"] = ssl_ca
+
+        # SSL verification settings
+        ssl_verify_cert = os.getenv("SSL_VERIFY_CERT", "false").lower() == "true"
+        ssl_verify_identity = os.getenv("SSL_VERIFY_IDENTITY", "false").lower() == "true"
+
+        if ssl_verify_cert:
+            ssl_config["ssl_verify_cert"] = True
+        if ssl_verify_identity:
+            ssl_config["ssl_verify_identity"] = True
+
+        # Add SSL config if any SSL settings are present
+        if ssl_config:
+            config.update(ssl_config)
+            logger.info("SSL configuration enabled for TiDB Cloud connection")
+
     # Remove None values to let MySQL connector use defaults if not specified
     config = {k: v for k, v in config.items() if v is not None}
 
@@ -44,6 +83,9 @@ def get_db_config():
 
 # Initialize server
 app = Server("mysql_mcp_server")
+
+# Import query intelligence service
+from .query_intelligence import query_intelligence
 
 @app.list_resources()
 async def list_resources() -> list[Resource]:
@@ -121,56 +163,95 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["query"]
             }
+        ),
+        Tool(
+            name="answer_database_question",
+            description="Answer natural language questions about the database using AI",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "question": {
+                        "type": "string",
+                        "description": "Natural language question about the database"
+                    },
+                    "user_context": {
+                        "type": "object",
+                        "description": "Optional user context for the query"
+                    }
+                },
+                "required": ["question"]
+            }
         )
     ]
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
-    """Execute SQL commands."""
-    config = get_db_config()
+    """Execute SQL commands or answer database questions."""
     logger.info(f"Calling tool: {name} with arguments: {arguments}")
 
-    if name != "execute_sql":
+    if name == "execute_sql":
+        config = get_db_config()
+        query = arguments.get("query")
+        if not query:
+            raise ValueError("Query is required")
+
+        try:
+            logger.info(f"Connecting to MySQL with charset: {config.get('charset')}, collation: {config.get('collation')}")
+            with connect(**config) as conn:
+                logger.info(f"Successfully connected to MySQL server version: {conn.get_server_info()}")
+                with conn.cursor() as cursor:
+                    cursor.execute(query)
+
+                    # Special handling for SHOW TABLES
+                    if query.strip().upper().startswith("SHOW TABLES"):
+                        tables = cursor.fetchall()
+                        result = ["Tables_in_" + config["database"]]  # Header
+                        result.extend([table[0] for table in tables])
+                        return [TextContent(type="text", text="\n".join(result))]
+
+                    # Handle all other queries that return result sets (SELECT, SHOW, DESCRIBE etc.)
+                    elif cursor.description is not None:
+                        columns = [desc[0] for desc in cursor.description]
+                        try:
+                            rows = cursor.fetchall()
+                            result = [",".join(map(str, row)) for row in rows]
+                            return [TextContent(type="text", text="\n".join([",".join(columns)] + result))]
+                        except Error as e:
+                            logger.warning(f"Error fetching results: {str(e)}")
+                            return [TextContent(type="text", text=f"Query executed but error fetching results: {str(e)}")]
+
+                    # Non-SELECT queries
+                    else:
+                        conn.commit()
+                        return [TextContent(type="text", text=f"Query executed successfully. Rows affected: {cursor.rowcount}")]
+
+        except Error as e:
+            logger.error(f"Error executing SQL '{query}': {e}")
+            logger.error(f"Error code: {e.errno}, SQL state: {e.sqlstate}")
+            return [TextContent(type="text", text=f"Error executing query: {str(e)}")]
+
+    elif name == "answer_database_question":
+        question = arguments.get("question")
+        user_context = arguments.get("user_context", {})
+
+        if not question:
+            raise ValueError("Question is required")
+
+        try:
+            result = await query_intelligence.answer_database_question(question, user_context)
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+        except Exception as e:
+            logger.error(f"Error answering database question '{question}': {e}")
+            error_result = {
+                "success": False,
+                "question": question,
+                "error": str(e),
+                "error_type": type(e).__name__
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+
+    else:
         raise ValueError(f"Unknown tool: {name}")
-
-    query = arguments.get("query")
-    if not query:
-        raise ValueError("Query is required")
-
-    try:
-        logger.info(f"Connecting to MySQL with charset: {config.get('charset')}, collation: {config.get('collation')}")
-        with connect(**config) as conn:
-            logger.info(f"Successfully connected to MySQL server version: {conn.get_server_info()}")
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-
-                # Special handling for SHOW TABLES
-                if query.strip().upper().startswith("SHOW TABLES"):
-                    tables = cursor.fetchall()
-                    result = ["Tables_in_" + config["database"]]  # Header
-                    result.extend([table[0] for table in tables])
-                    return [TextContent(type="text", text="\n".join(result))]
-
-                # Handle all other queries that return result sets (SELECT, SHOW, DESCRIBE etc.)
-                elif cursor.description is not None:
-                    columns = [desc[0] for desc in cursor.description]
-                    try:
-                        rows = cursor.fetchall()
-                        result = [",".join(map(str, row)) for row in rows]
-                        return [TextContent(type="text", text="\n".join([",".join(columns)] + result))]
-                    except Error as e:
-                        logger.warning(f"Error fetching results: {str(e)}")
-                        return [TextContent(type="text", text=f"Query executed but error fetching results: {str(e)}")]
-
-                # Non-SELECT queries
-                else:
-                    conn.commit()
-                    return [TextContent(type="text", text=f"Query executed successfully. Rows affected: {cursor.rowcount}")]
-
-    except Error as e:
-        logger.error(f"Error executing SQL '{query}': {e}")
-        logger.error(f"Error code: {e.errno}, SQL state: {e.sqlstate}")
-        return [TextContent(type="text", text=f"Error executing query: {str(e)}")]
 
 async def main():
     """Main entry point to run the MCP server."""
