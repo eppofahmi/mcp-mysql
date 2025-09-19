@@ -67,11 +67,18 @@ class QueryIntelligenceService:
 
         except Exception as e:
             logger.error(f"Error processing database question: {str(e)}")
+
+            # Enhanced error handling with user guidance
+            error_message = str(e)
+            guidance = await self._provide_query_guidance(question, error_message, schema_context)
+
             return {
                 "success": False,
                 "question": question,
-                "error": str(e),
-                "error_type": type(e).__name__
+                "error": error_message,
+                "error_type": type(e).__name__,
+                "guidance": guidance,
+                "formatted_response": self._format_guidance_response(question, guidance, error_message)
             }
 
     async def _get_complete_schema_context_cached(self) -> str:
@@ -434,8 +441,247 @@ Generate only the SQL query, no explanation:""")
 
         return insights[:3]
 
+    async def _provide_query_guidance(self, question: str, error_message: str, schema_context: str) -> dict:
+        """Analyze error and provide helpful guidance for better queries"""
+        guidance = {
+            "suggestions": [],
+            "available_tables": [],
+            "column_hints": {},
+            "example_queries": []
+        }
+
+        try:
+            # Parse schema to extract available information
+            config = get_db_config()
+            with connect(**config) as conn:
+                with conn.cursor() as cursor:
+                    # Get available tables
+                    cursor.execute("SHOW TABLES")
+                    tables = [table[0] for table in cursor.fetchall()]
+                    guidance["available_tables"] = tables
+
+                    # Get column information for each table
+                    for table in tables:
+                        cursor.execute(f"DESCRIBE {table}")
+                        columns = cursor.fetchall()
+                        guidance["column_hints"][table] = [col[0] for col in columns]
+
+                    # Analyze the error and provide specific suggestions
+                    guidance["suggestions"] = self._analyze_query_error(question, error_message, tables, guidance["column_hints"])
+
+                    # Generate example queries
+                    guidance["example_queries"] = self._generate_example_queries(tables, guidance["column_hints"])
+
+        except Exception as e:
+            logger.warning(f"Could not generate guidance: {str(e)}")
+            guidance["suggestions"] = ["Could not analyze the database schema. Please try a simpler query."]
+
+        return guidance
+
+    def _analyze_query_error(self, question: str, error_message: str, tables: list, column_hints: dict) -> list:
+        """Analyze specific errors and provide targeted suggestions"""
+        suggestions = []
+        question_lower = question.lower()
+
+        # Handle unknown column errors
+        if "unknown column" in error_message.lower() or "42s22" in error_message:
+            # Extract problematic column name from error
+            import re
+            column_match = re.search(r"Unknown column '([^']+)'", error_message)
+            if column_match:
+                bad_column = column_match.group(1)
+
+                # Find similar columns across tables
+                similar_columns = []
+                for table, columns in column_hints.items():
+                    for col in columns:
+                        if (bad_column.lower() in col.lower() or
+                            col.lower() in bad_column.lower() or
+                            any(word in col.lower() for word in bad_column.lower().split('_'))):
+                            similar_columns.append(f"{table}.{col}")
+
+                if similar_columns:
+                    suggestions.append(f"Column '{bad_column}' not found. Did you mean one of these: {', '.join(similar_columns[:5])}?")
+                else:
+                    suggestions.append(f"Column '{bad_column}' doesn't exist. Available columns:")
+                    for table, cols in column_hints.items():
+                        suggestions.append(f"  • {table}: {', '.join(cols)}")
+
+        # Handle revenue/sales related queries
+        if any(word in question_lower for word in ['revenue', 'sales', 'money', 'amount', 'total']):
+            revenue_columns = []
+            for table, columns in column_hints.items():
+                for col in columns:
+                    if any(keyword in col.lower() for keyword in ['amount', 'revenue', 'price', 'total', 'cost', 'sales']):
+                        revenue_columns.append(f"{table}.{col}")
+
+            if revenue_columns:
+                suggestions.append(f"For financial data, try these columns: {', '.join(revenue_columns[:5])}")
+
+        # Handle product-related queries
+        if any(word in question_lower for word in ['product', 'item', 'goods']):
+            product_info = []
+            for table, columns in column_hints.items():
+                if 'product' in table.lower():
+                    product_info.append(f"Table '{table}' has: {', '.join(columns)}")
+
+            if product_info:
+                suggestions.append("Product information available in:")
+                suggestions.extend([f"  • {info}" for info in product_info[:3]])
+
+        # Handle multi-table relationship queries dynamically
+        multi_table_words = []
+        for table in tables:
+            if table.lower() in question_lower:
+                multi_table_words.append(table)
+
+        if len(multi_table_words) >= 2 or any(phrase in question_lower for phrase in ['by', 'with', 'join', 'connect']):
+            # Detect potential table relationships dynamically
+            potential_joins = self._detect_potential_joins(tables, column_hints)
+            if potential_joins:
+                suggestions.append("Detected possible table relationships:")
+                for join_info in potential_joins[:3]:
+                    suggestions.append(f"  • {join_info}")
+            else:
+                suggestions.append("No obvious relationships detected between tables.")
+                suggestions.append("Consider using foreign key columns ending with '_id' or intermediary tables.")
+
+        # Handle count queries
+        if any(word in question_lower for word in ['how many', 'count', 'number of']):
+            suggestions.append(f"For counting, try: 'How many records in [table]?' Available tables: {', '.join(tables)}")
+
+        # Generic suggestions if no specific matches
+        if not suggestions:
+            suggestions.append("Try being more specific about which table and columns you want to query.")
+            suggestions.append(f"Available tables: {', '.join(tables)}")
+
+        return suggestions
+
+    def _detect_potential_joins(self, tables: list, column_hints: dict) -> list:
+        """Dynamically detect potential JOIN relationships between tables"""
+        potential_joins = []
+
+        # 1. Direct foreign key relationships (table1.foreign_key_id = table2.id)
+        for table1 in tables:
+            cols1 = column_hints.get(table1, [])
+            for col in cols1:
+                if col.endswith('_id') and col != 'id':
+                    # Extract the referenced table name (e.g., user_id -> user)
+                    referenced_table_base = col.replace('_id', '')
+
+                    # Find matching table (handle both singular and plural forms)
+                    for table2 in tables:
+                        if (table2.lower() == referenced_table_base.lower() or
+                            table2.lower() == referenced_table_base.lower() + 's' or
+                            table2.lower() + 's' == referenced_table_base.lower()):
+                            cols2 = column_hints.get(table2, [])
+                            if 'id' in cols2:
+                                potential_joins.append(f"JOIN {table2} ON {table1}.{col} = {table2}.id")
+
+        # 2. Indirect relationships through common foreign keys
+        # Group tables by their foreign key columns
+        foreign_key_groups = {}
+        for table, columns in column_hints.items():
+            for col in columns:
+                if col.endswith('_id') and col != 'id':
+                    base_name = col.replace('_id', '')
+                    if base_name not in foreign_key_groups:
+                        foreign_key_groups[base_name] = []
+                    foreign_key_groups[base_name].append((table, col))
+
+        # Find indirect connections where multiple tables reference the same entity
+        for base_name, table_refs in foreign_key_groups.items():
+            if len(table_refs) >= 2:
+                for i, (table1, col1) in enumerate(table_refs):
+                    for table2, col2 in table_refs[i+1:]:
+                        # Create indirect JOIN suggestion
+                        potential_joins.append(f"JOIN {table2} ON {table1}.{col1} = {table2}.{col2} (both reference {base_name})")
+
+        # 4. Enhanced indirect detection for common patterns like user_id/owner_id
+        # Find all _id columns and group by potential target table
+        id_pattern_groups = {}
+        for table, columns in column_hints.items():
+            for col in columns:
+                if col.endswith('_id') and col != 'id':
+                    # Check if this could reference users (owner_id, user_id, etc.)
+                    if 'user' in col.lower() or 'owner' in col.lower():
+                        if 'user' not in id_pattern_groups:
+                            id_pattern_groups['user'] = []
+                        id_pattern_groups['user'].append((table, col))
+
+        # Create indirect connections for user-related fields
+        for entity, refs in id_pattern_groups.items():
+            if len(refs) >= 2:
+                for i, (table1, col1) in enumerate(refs):
+                    for table2, col2 in refs[i+1:]:
+                        potential_joins.append(f"JOIN {table2} ON {table1}.{col1} = {table2}.{col2} (both are {entity} references)")
+
+        # 3. Many-to-many through junction tables
+        # Look for tables that might be junction tables (have multiple foreign keys)
+        for table, columns in column_hints.items():
+            foreign_keys = [col for col in columns if col.endswith('_id') and col != 'id']
+            if len(foreign_keys) >= 2:
+                # This might be a junction table
+                potential_joins.append(f"Table '{table}' appears to link {', '.join([fk.replace('_id', '') for fk in foreign_keys])}")
+
+        # Remove duplicates and limit results
+        unique_joins = list(dict.fromkeys(potential_joins))  # Preserve order while removing duplicates
+        return unique_joins[:5]  # Limit to most relevant relationships
+
+    def _generate_example_queries(self, tables: list, column_hints: dict) -> list:
+        """Generate example queries based on available schema"""
+        examples = []
+
+        for table in tables[:3]:  # Show examples for first 3 tables
+            columns = column_hints.get(table, [])
+            if columns:
+                examples.append(f"'How many records in {table} table?'")
+
+                # Find likely name/description columns
+                name_cols = [col for col in columns if any(word in col.lower() for word in ['name', 'title', 'description'])]
+                if name_cols:
+                    examples.append(f"'Show me all {name_cols[0]} from {table}'")
+
+                # Find likely numeric columns
+                numeric_cols = [col for col in columns if any(word in col.lower() for word in ['amount', 'count', 'total', 'price', 'id'])]
+                if numeric_cols and len(numeric_cols) > 1:
+                    examples.append(f"'What is the total {numeric_cols[1]} in {table}?'")
+
+        return examples[:5]
+
+    def _format_guidance_response(self, question: str, guidance: dict, error_message: str) -> str:
+        """Format guidance into a user-friendly response"""
+        response_parts = [
+            "I had trouble understanding your database question. Let me help you find what you're looking for:",
+            ""
+        ]
+
+        # Add specific suggestions
+        if guidance.get("suggestions"):
+            response_parts.append("💡 **Suggestions:**")
+            for suggestion in guidance["suggestions"][:4]:
+                response_parts.append(f"   {suggestion}")
+            response_parts.append("")
+
+        # Add available tables
+        if guidance.get("available_tables"):
+            tables = guidance["available_tables"]
+            response_parts.append(f"📋 **Available tables:** {', '.join(tables)}")
+            response_parts.append("")
+
+        # Add example queries
+        if guidance.get("example_queries"):
+            response_parts.append("✨ **Try asking:**")
+            for example in guidance["example_queries"][:3]:
+                response_parts.append(f"   {example}")
+            response_parts.append("")
+
+        response_parts.append("Feel free to ask about specific tables or columns, and I'll help you build the right query!")
+
+        return "\n".join(response_parts)
+
     def _discover_relationships(self, cursor, tables: list) -> list:
-        """Discover relationships between tables"""
+        """Discover relationships between tables including indirect connections"""
         relationships = []
 
         try:
@@ -445,7 +691,7 @@ Generate only the SQL query, no explanation:""")
                 columns = cursor.fetchall()
                 table_columns[table] = [col[0] for col in columns]
 
-            # Foreign key detection
+            # 1. Direct foreign key detection
             for table1 in tables:
                 cols1 = table_columns[table1]
                 for col in cols1:
@@ -453,12 +699,41 @@ Generate only the SQL query, no explanation:""")
                         referenced_table = col.replace('_id', '')
                         for table2 in tables:
                             if (table2.lower() == referenced_table.lower() and 'id' in table_columns[table2]):
-                                relationships.append(f"JOIN: {table1}.{col} = {table2}.id")
+                                relationships.append(f"DIRECT: {table1}.{col} = {table2}.id")
 
-        except Exception:
-            pass
+            # 2. Indirect relationships through common foreign keys
+            # Example: projects.owner_id and sales.user_id both reference users
+            id_columns = {}  # Track which tables have which _id columns
+            for table, columns in table_columns.items():
+                for col in columns:
+                    if col.endswith('_id') and col != 'id':
+                        base_name = col.replace('_id', '')
+                        if base_name not in id_columns:
+                            id_columns[base_name] = []
+                        id_columns[base_name].append((table, col))
 
-        return relationships[:5]
+            # Find indirect connections
+            for base_name, references in id_columns.items():
+                if len(references) >= 2:  # Multiple tables reference the same entity
+                    for i, (table1, col1) in enumerate(references):
+                        for table2, col2 in references[i+1:]:
+                            # Special cases for common patterns
+                            if base_name == 'user' and 'owner_id' in [col1, col2]:
+                                relationships.append(f"INDIRECT: {table1}.{col1} = {table2}.{col2} (both reference users)")
+                            else:
+                                relationships.append(f"INDIRECT: {table1}.{col1} = {table2}.{col2} (via {base_name})")
+
+            # 3. Enhanced JOIN examples for complex queries - use generic relationship detection
+            # Find any indirect relationships that could be used for complex queries
+            for base_name, references in id_columns.items():
+                if len(references) >= 2:
+                    for (table1, col1), (table2, col2) in zip(references, references[1:]):
+                        relationships.append(f"COMPLEX: JOIN {table2} ON {table2}.{col2} = {table1}.{col1} ({table1} {col1.replace('_id', '')} linked to {table2})")
+
+        except Exception as e:
+            logger.warning(f"Error discovering relationships: {e}")
+
+        return relationships[:8]  # Increased limit for more comprehensive relationships
 
     def _format_for_llm_consumption(self, query_result: str) -> str:
         """Format results for LLM"""
