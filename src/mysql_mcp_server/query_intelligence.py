@@ -32,7 +32,7 @@ class QueryIntelligenceService:
 
     async def answer_database_question(self, question: str, user_context: dict = None) -> Dict[str, Any]:
         """
-        Complete database question answering service with caching
+        Complete database question answering service with caching and query planning
         """
         try:
             logger.info(f"Processing database question: {question}")
@@ -40,28 +40,40 @@ class QueryIntelligenceService:
             # 1. Get complete database context (with caching)
             schema_context = await self._get_complete_schema_context_cached()
 
-            # 2. Generate SQL using remote Ollama
-            sql_query = await self._generate_sql_with_ollama(question, schema_context)
+            # 2. Analyze question for multi-table requirements
+            query_plan = self._analyze_query_requirements(question, schema_context)
+            logger.info(f"Query plan: {query_plan}")
+
+            # 3. Generate enhanced schema context for multi-table queries
+            if query_plan['requires_multiple_tables']:
+                enhanced_context = self._enhance_context_for_multitable(schema_context, query_plan)
+            else:
+                enhanced_context = schema_context
+
+            # 4. Generate SQL using remote Ollama with enhanced context
+            sql_query = await self._generate_sql_with_ollama(question, enhanced_context)
             logger.info(f"Generated SQL: {sql_query}")
 
-            # 3. Validate query safety
+            # 5. Validate query safety
             self._validate_query_safety(sql_query)
 
-            # 4. Execute query
+            # 6. Execute query
             query_result = await self._execute_sql_safely(sql_query)
 
-            # 5. Format response
+            # 7. Format response
             return {
                 "success": True,
                 "question": question,
                 "sql_query": sql_query,
                 "data": query_result,
                 "formatted_response": self._format_for_llm_consumption(query_result),
+                "query_plan": query_plan,
                 "metadata": {
                     "rows_returned": self._count_rows(query_result),
                     "tables_accessed": self._extract_tables_from_sql(sql_query),
                     "query_type": self._classify_query_type(sql_query),
-                    "cache_used": self.enable_cache
+                    "cache_used": self.enable_cache,
+                    "complexity": query_plan['complexity']
                 }
             }
 
@@ -165,12 +177,20 @@ class QueryIntelligenceService:
             self._add_sample_data(cursor, table, column_names, schema_parts, preview_rows, max_columns, enable_analysis)
             schema_parts.append("")
 
-        # Relationship discovery with caching
+        # Enhanced relationship discovery with join paths for multi-table queries
         if enable_relationships and len(tables) > 1:
             relationships = self._get_relationships_cached(cursor, tables)
+            join_paths = self._generate_join_paths(cursor, tables)
+
             if relationships:
-                schema_parts.append("Potential table relationships:")
+                schema_parts.append("Table relationships:")
                 schema_parts.extend([f"  {rel}" for rel in relationships])
+                schema_parts.append("")
+
+            if join_paths:
+                schema_parts.append("MULTI-TABLE JOIN PATTERNS:")
+                for path in join_paths:
+                    schema_parts.append(f"  {path}")
                 schema_parts.append("")
 
         return "\n".join(schema_parts)
@@ -297,27 +317,44 @@ class QueryIntelligenceService:
     async def _generate_sql_with_ollama(self, question: str, schema_context: str) -> str:
         """Generate SQL using remote Ollama service"""
         sql_prompt_template = os.environ.get('OLLAMA_SQL_SYSTEM_PROMPT',
-            """You are a SQL expert for MySQL/TiDB. Convert the natural language question to a safe, accurate SQL query.
+            """You are a MySQL/TiDB SQL expert specializing in complex multi-table queries. Convert natural language to accurate SQL.
 
 DATABASE SCHEMA:
 {schema_context}
 
-RULES:
+CRITICAL RULES:
 - Only SELECT, SHOW, DESCRIBE queries (READ-ONLY)
 - Never INSERT, UPDATE, DELETE, DROP, ALTER
-- Use proper table and column names from schema above
+- Use exact table and column names from schema above
 - Include LIMIT clause (max 100 rows unless specifically requested)
-- Use proper MySQL syntax
-- If question is unclear, make reasonable assumptions based on available data
+- Always use proper JOIN syntax for multi-table queries
 
-EXAMPLES:
+MULTI-TABLE QUERY STRATEGY:
+1. Identify ALL tables mentioned or implied in the question
+2. Use the "MULTI-TABLE JOIN PATTERNS" section above to find correct join paths
+3. For 3+ table queries, use the provided join examples as templates
+4. Always specify the full table.column format for ambiguous columns
+5. Use appropriate JOIN types (INNER JOIN is default)
+
+MULTI-TABLE EXAMPLES:
+- "Sales by user and product" → Use user-sales-product join path from patterns above
+- "Orders with customer details" → JOIN orders with customers table
+- "Product sales with category info" → JOIN products, sales, categories using proper foreign keys
+- "User activity across projects" → Use junction tables if available
+
+SINGLE TABLE EXAMPLES:
 - "How many users?" → "SELECT COUNT(*) FROM users"
 - "Recent sales" → "SELECT * FROM sales ORDER BY date DESC LIMIT 20"
 - "Top products" → "SELECT product, COUNT(*) as sales_count FROM sales GROUP BY product ORDER BY sales_count DESC LIMIT 10"
 
+AGGREGATION WITH JOINS:
+- Always use proper GROUP BY when joining tables with aggregation
+- Use table aliases for complex queries: SELECT u.name, COUNT(s.id) FROM users u JOIN sales s ON u.id = s.user_id GROUP BY u.id
+- Include meaningful column names in SELECT
+
 USER QUESTION: {question}
 
-Generate only the SQL query, no explanation:""")
+Analyze the question for multi-table requirements, then generate ONLY the SQL query:""")
 
         sql_prompt = sql_prompt_template.format(
             schema_context=schema_context,
@@ -734,6 +771,256 @@ Generate only the SQL query, no explanation:""")
             logger.warning(f"Error discovering relationships: {e}")
 
         return relationships[:8]  # Increased limit for more comprehensive relationships
+
+    def _generate_join_paths(self, cursor, tables: list) -> list:
+        """Generate comprehensive join paths for multi-table queries"""
+        try:
+            # Get all table columns with their types
+            table_columns = {}
+            foreign_keys = {}
+            primary_keys = {}
+
+            for table in tables:
+                cursor.execute(f"DESCRIBE {table}")
+                columns = cursor.fetchall()
+                table_columns[table] = {}
+
+                for col in columns:
+                    field, type_, null, key, default, extra = col
+                    table_columns[table][field] = {
+                        'type': type_,
+                        'key': key,
+                        'nullable': null == 'YES'
+                    }
+
+                    if key == 'PRI':
+                        primary_keys[table] = field
+                    elif field.endswith('_id') and field != 'id':
+                        if table not in foreign_keys:
+                            foreign_keys[table] = []
+                        foreign_keys[table].append(field)
+
+            join_paths = []
+
+            # 1. Direct 2-table joins
+            for table1 in tables:
+                if table1 in foreign_keys:
+                    for fk in foreign_keys[table1]:
+                        referenced_table = fk.replace('_id', '')
+                        for table2 in tables:
+                            if (table2.lower() == referenced_table.lower() or
+                                table2.lower() == referenced_table.lower() + 's' or
+                                table2.lower() + 's' == referenced_table.lower()):
+                                if table2 in primary_keys:
+                                    join_paths.append(f"2-TABLE: SELECT * FROM {table1} JOIN {table2} ON {table1}.{fk} = {table2}.{primary_keys[table2]}")
+
+            # 2. Three-table join paths through intermediary tables
+            for table1 in tables:
+                if table1 in foreign_keys and len(foreign_keys[table1]) >= 2:
+                    # This could be a junction/bridge table
+                    fks = foreign_keys[table1]
+                    if len(fks) >= 2:
+                        for i, fk1 in enumerate(fks):
+                            for fk2 in fks[i+1:]:
+                                ref1 = fk1.replace('_id', '')
+                                ref2 = fk2.replace('_id', '')
+
+                                table2 = self._find_table_by_name(tables, ref1)
+                                table3 = self._find_table_by_name(tables, ref2)
+
+                                if table2 and table3 and table2 != table3:
+                                    join_paths.append(
+                                        f"3-TABLE: SELECT * FROM {table2} "
+                                        f"JOIN {table1} ON {table2}.{primary_keys.get(table2, 'id')} = {table1}.{fk1} "
+                                        f"JOIN {table3} ON {table1}.{fk2} = {table3}.{primary_keys.get(table3, 'id')}"
+                                    )
+
+            # 3. Chain joins (A->B->C through foreign keys)
+            for start_table in tables:
+                if start_table in foreign_keys:
+                    for fk in foreign_keys[start_table]:
+                        middle_table = self._find_table_by_name(tables, fk.replace('_id', ''))
+                        if middle_table and middle_table in foreign_keys:
+                            for middle_fk in foreign_keys[middle_table]:
+                                end_table = self._find_table_by_name(tables, middle_fk.replace('_id', ''))
+                                if end_table and end_table != start_table:
+                                    join_paths.append(
+                                        f"CHAIN: SELECT * FROM {start_table} "
+                                        f"JOIN {middle_table} ON {start_table}.{fk} = {middle_table}.{primary_keys.get(middle_table, 'id')} "
+                                        f"JOIN {end_table} ON {middle_table}.{middle_fk} = {end_table}.{primary_keys.get(end_table, 'id')}"
+                                    )
+
+            # 4. Complex multi-table scenarios (4+ tables)
+            if len(tables) >= 4:
+                central_tables = []
+                for table, fks in foreign_keys.items():
+                    if len(fks) >= 2:  # Tables with multiple foreign keys could be central
+                        central_tables.append(table)
+
+                for central in central_tables:
+                    connected_tables = []
+                    for fk in foreign_keys[central]:
+                        target = self._find_table_by_name(tables, fk.replace('_id', ''))
+                        if target:
+                            connected_tables.append((target, fk))
+
+                    if len(connected_tables) >= 3:
+                        # Generate a 4-table join example
+                        table_joins = [f"FROM {central}"]
+                        for target, fk in connected_tables[:3]:
+                            table_joins.append(f"JOIN {target} ON {central}.{fk} = {target}.{primary_keys.get(target, 'id')}")
+
+                        join_paths.append(f"4-TABLE: SELECT * {' '.join(table_joins)}")
+
+            # Remove duplicates and return limited results
+            unique_paths = list(dict.fromkeys(join_paths))
+            return unique_paths[:10]  # Limit to most important patterns
+
+        except Exception as e:
+            logger.warning(f"Error generating join paths: {e}")
+            return []
+
+    def _find_table_by_name(self, tables: list, name: str) -> str:
+        """Find table by name with fuzzy matching"""
+        name_lower = name.lower()
+        for table in tables:
+            table_lower = table.lower()
+            if (table_lower == name_lower or
+                table_lower == name_lower + 's' or
+                table_lower + 's' == name_lower or
+                name_lower in table_lower or
+                table_lower in name_lower):
+                return table
+        return None
+
+    def _analyze_query_requirements(self, question: str, schema_context: str) -> dict:
+        """Analyze question to determine query complexity and requirements"""
+        question_lower = question.lower()
+
+        # Extract table names mentioned in schema
+        tables = []
+        lines = schema_context.split('\n')
+        for line in lines:
+            if line.startswith('Table: '):
+                tables.append(line.replace('Table: ', '').strip())
+
+        # Detect multi-table indicators
+        multi_table_keywords = [
+            'join', 'with', 'and', 'by', 'across', 'between', 'relating', 'connected',
+            'along with', 'together with', 'including', 'combined with'
+        ]
+
+        # Count tables mentioned or implied
+        mentioned_tables = []
+        for table in tables:
+            if table.lower() in question_lower:
+                mentioned_tables.append(table)
+
+        # Detect entity relationships in question
+        relationship_indicators = []
+        if any(keyword in question_lower for keyword in ['user', 'customer', 'owner']):
+            relationship_indicators.append('user_related')
+        if any(keyword in question_lower for keyword in ['product', 'item', 'goods']):
+            relationship_indicators.append('product_related')
+        if any(keyword in question_lower for keyword in ['order', 'sale', 'purchase', 'transaction']):
+            relationship_indicators.append('transaction_related')
+        if any(keyword in question_lower for keyword in ['project', 'task', 'activity']):
+            relationship_indicators.append('project_related')
+
+        # Determine complexity
+        complexity = 'simple'
+        requires_multiple_tables = False
+
+        if len(mentioned_tables) >= 2:
+            requires_multiple_tables = True
+            complexity = 'complex'
+        elif len(relationship_indicators) >= 2:
+            requires_multiple_tables = True
+            complexity = 'complex'
+        elif any(keyword in question_lower for keyword in multi_table_keywords):
+            requires_multiple_tables = True
+            complexity = 'moderate'
+        elif any(phrase in question_lower for phrase in ['total', 'sum', 'count', 'average', 'max', 'min']) and \
+             any(phrase in question_lower for phrase in ['by', 'per', 'for each', 'group']):
+            # Aggregation queries might need joins
+            complexity = 'moderate'
+            requires_multiple_tables = len(tables) > 1  # Only if multiple tables exist
+
+        return {
+            'requires_multiple_tables': requires_multiple_tables,
+            'complexity': complexity,
+            'mentioned_tables': mentioned_tables,
+            'relationship_indicators': relationship_indicators,
+            'suggested_tables': self._suggest_relevant_tables(question_lower, tables, relationship_indicators)
+        }
+
+    def _suggest_relevant_tables(self, question_lower: str, tables: list, relationship_indicators: list) -> list:
+        """Suggest which tables are likely relevant to the question"""
+        relevant_tables = []
+
+        # Direct table name matches
+        for table in tables:
+            if table.lower() in question_lower:
+                relevant_tables.append(table)
+
+        # Semantic matching based on relationship indicators
+        for indicator in relationship_indicators:
+            if indicator == 'user_related':
+                for table in tables:
+                    if any(word in table.lower() for word in ['user', 'customer', 'person', 'account', 'profile']):
+                        if table not in relevant_tables:
+                            relevant_tables.append(table)
+
+            elif indicator == 'product_related':
+                for table in tables:
+                    if any(word in table.lower() for word in ['product', 'item', 'goods', 'catalog', 'inventory']):
+                        if table not in relevant_tables:
+                            relevant_tables.append(table)
+
+            elif indicator == 'transaction_related':
+                for table in tables:
+                    if any(word in table.lower() for word in ['order', 'sale', 'purchase', 'transaction', 'payment', 'invoice']):
+                        if table not in relevant_tables:
+                            relevant_tables.append(table)
+
+            elif indicator == 'project_related':
+                for table in tables:
+                    if any(word in table.lower() for word in ['project', 'task', 'activity', 'work', 'assignment']):
+                        if table not in relevant_tables:
+                            relevant_tables.append(table)
+
+        return relevant_tables
+
+    def _enhance_context_for_multitable(self, schema_context: str, query_plan: dict) -> str:
+        """Enhance schema context specifically for multi-table queries"""
+        enhanced_parts = [schema_context]
+
+        if query_plan['requires_multiple_tables']:
+            enhanced_parts.append("\n=== MULTI-TABLE QUERY GUIDANCE ===")
+
+            if query_plan['suggested_tables']:
+                enhanced_parts.append(f"FOCUS ON THESE TABLES: {', '.join(query_plan['suggested_tables'])}")
+
+            enhanced_parts.append("\nCOMMON MULTI-TABLE PATTERNS:")
+            enhanced_parts.append("- User activities: JOIN users table with activity/transaction tables")
+            enhanced_parts.append("- Product sales: JOIN products with sales/orders tables")
+            enhanced_parts.append("- Order details: JOIN orders with customers and products")
+            enhanced_parts.append("- Project assignments: JOIN projects with users through assignment tables")
+
+            enhanced_parts.append("\nJOIN STRATEGY:")
+            enhanced_parts.append("1. Start with the main entity table (users, products, orders)")
+            enhanced_parts.append("2. Join related tables using foreign key relationships")
+            enhanced_parts.append("3. Use table aliases for clarity: u.name, p.title, o.date")
+            enhanced_parts.append("4. Include proper GROUP BY for aggregations")
+
+            if query_plan['complexity'] == 'complex':
+                enhanced_parts.append("\nCOMPLEX QUERY TIPS:")
+                enhanced_parts.append("- Use subqueries if direct joins are complex")
+                enhanced_parts.append("- Consider intermediate result sets")
+                enhanced_parts.append("- Use EXISTS for existence checks")
+                enhanced_parts.append("- Apply LIMIT after all joins and filters")
+
+        return "\n".join(enhanced_parts)
 
     def _format_for_llm_consumption(self, query_result: str) -> str:
         """Format results for LLM"""

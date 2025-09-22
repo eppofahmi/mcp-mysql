@@ -10,9 +10,18 @@ def test_server_initialization():
 async def test_list_tools():
     """Test that list_tools returns expected tools."""
     tools = await list_tools()
-    assert len(tools) == 1
-    assert tools[0].name == "execute_sql"
-    assert "query" in tools[0].inputSchema["properties"]
+    assert len(tools) == 2
+    tool_names = [tool.name for tool in tools]
+    assert "execute_sql" in tool_names
+    assert "answer_database_question" in tool_names
+
+    # Check execute_sql tool
+    execute_sql_tool = next(tool for tool in tools if tool.name == "execute_sql")
+    assert "query" in execute_sql_tool.inputSchema["properties"]
+
+    # Check answer_database_question tool
+    answer_tool = next(tool for tool in tools if tool.name == "answer_database_question")
+    assert "question" in answer_tool.inputSchema["properties"]
 
 @pytest.mark.asyncio
 async def test_call_tool_invalid_name():
