@@ -84,6 +84,28 @@ async def answer_database_question(request: DatabaseQuestionRequest):
             request.question,
             request.user_context
         )
+
+        # Parse the CSV data to return as structured JSON
+        if result.get("success") and result.get("data"):
+            lines = result["data"].strip().split('\n')
+            if lines:
+                headers = lines[0].split(',')
+                data_rows = []
+                for line in lines[1:]:
+                    if line and line != "No data found":
+                        values = line.split(',')
+                        row_dict = dict(zip(headers, values))
+                        data_rows.append(row_dict)
+
+                # Return simplified response with just the data
+                return {
+                    "success": True,
+                    "sql_query": result.get("sql_query"),
+                    "rows_returned": len(data_rows),
+                    "columns": headers,
+                    "data": data_rows
+                }
+
         return result
     except Exception as e:
         return {
