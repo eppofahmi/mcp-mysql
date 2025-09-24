@@ -1,0 +1,5242 @@
+{
+  "database": "allammedica",
+  "tables": [
+    "pasien",
+    "dokter",
+    "reg_periksa",
+    "poliklinik",
+    "penjab",
+    "kamar_inap",
+    "bangsal",
+    "kamar",
+    "penyakit",
+    "diagnosa_pasien",
+    "rawat_jl_dr",
+    "rawat_inap_dr",
+    "periksa_lab",
+    "periksa_radiologi",
+    "obat_racikan",
+    "resep_dokter",
+    "operasi",
+    "rujuk",
+    "bridging_sep",
+    "nota_jalan",
+    "nota_inap"
+  ],
+  "schema": {
+    "pasien": {
+      "columns": [
+        {
+          "name": "no_rkm_medis",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nm_pasien",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_ktp",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jk",
+          "type": "enum('L','P')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tmp_lahir",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_lahir",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nm_ibu",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "alamat",
+          "type": "varchar(200)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "gol_darah",
+          "type": "enum('A','B','O','AB','-')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "pekerjaan",
+          "type": "varchar(60)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts_nikah",
+          "type": "enum('BELUM MENIKAH','MENIKAH','JANDA','DUDHA','JOMBLO')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "agama",
+          "type": "varchar(12)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_daftar",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_tlp",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "umur",
+          "type": "varchar(30)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "pnd",
+          "type": "enum('TS','TK','SD','SMP','SMA','SLTA/SEDERAJAT','D1','D2','D3','D4','S1','S2','S3','-')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keluarga",
+          "type": "enum('AYAH','IBU','ISTRI','SUAMI','SAUDARA','ANAK','DIRI SENDIRI','LAIN-LAIN')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "namakeluarga",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_pj",
+          "type": "char(3)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_peserta",
+          "type": "varchar(25)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_kel",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_kec",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_kab",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "pekerjaanpj",
+          "type": "varchar(35)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "alamatpj",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kelurahanpj",
+          "type": "varchar(60)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kecamatanpj",
+          "type": "varchar(60)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kabupatenpj",
+          "type": "varchar(60)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "perusahaan_pasien",
+          "type": "varchar(8)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "suku_bangsa",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bahasa_pasien",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "cacat_fisik",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "email",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nip",
+          "type": "varchar(30)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_prop",
+          "type": "int",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "propinsipj",
+          "type": "varchar(30)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rkm_medis"
+      ],
+      "foreign_keys": [
+        "kd_pj",
+        "kd_kel",
+        "kd_kec",
+        "kd_kab",
+        "perusahaan_pasien",
+        "suku_bangsa",
+        "bahasa_pasien",
+        "cacat_fisik",
+        "kd_prop"
+      ],
+      "relationships": [
+        "pasien.kd_pj → penjab.kd_pj",
+        "pasien.kd_kel → kelurahan.kd_kel",
+        "pasien.kd_kec → kecamatan.kd_kec",
+        "pasien.kd_kab → kabupaten.kd_kab",
+        "pasien.perusahaan_pasien → perusahaan_pasien.kode_perusahaan",
+        "pasien.suku_bangsa → suku_bangsa.id",
+        "pasien.bahasa_pasien → bahasa_pasien.id",
+        "pasien.cacat_fisik → cacat_fisik.id",
+        "pasien.kd_prop → propinsi.kd_prop"
+      ],
+      "sample_data": [
+        {
+          "no_rkm_medis": " 7031889",
+          "nm_pasien": "Ny. Siti Fatimah / 090812497",
+          "no_ktp": "-",
+          "jk": "P",
+          "tmp_lahir": "-",
+          "tgl_lahir": "2017-11-14",
+          "nm_ibu": "-",
+          "alamat": "PANDANSARI 4/2 PGY",
+          "gol_darah": "-",
+          "pekerjaan": "-",
+          "stts_nikah": "BELUM MENIKAH",
+          "agama": "-",
+          "tgl_daftar": "2017-11-14",
+          "no_tlp": "-",
+          "umur": "1 Th 1 Bl 27 Hr",
+          "pnd": "-",
+          "keluarga": "SAUDARA",
+          "namakeluarga": "Kamso ",
+          "kd_pj": "OW",
+          "no_peserta": "-",
+          "kd_kel": 0,
+          "kd_kec": 0,
+          "kd_kab": 0,
+          "pekerjaanpj": "-",
+          "alamatpj": "-",
+          "kelurahanpj": "-",
+          "kecamatanpj": "-",
+          "kabupatenpj": "-",
+          "perusahaan_pasien": "-",
+          "suku_bangsa": 0,
+          "bahasa_pasien": 0,
+          "cacat_fisik": 0,
+          "email": "",
+          "nip": "-",
+          "kd_prop": 0,
+          "propinsipj": "-"
+        },
+        {
+          "no_rkm_medis": " 8118604",
+          "nm_pasien": "TARIM, TN ",
+          "no_ktp": "3329021910500001",
+          "jk": "L",
+          "tmp_lahir": "BREBES",
+          "tgl_lahir": "1950-10-19",
+          "nm_ibu": "RAWIS, NY / SADI, TN ",
+          "alamat": "KEBANDUNGAN 3/2",
+          "gol_darah": "-",
+          "pekerjaan": "PETANI",
+          "stts_nikah": "MENIKAH",
+          "agama": "ISLAM",
+          "tgl_daftar": "2018-05-17",
+          "no_tlp": "085946992572",
+          "umur": "68 Th 2 Bl 27 Hr",
+          "pnd": "-",
+          "keluarga": "ISTRI",
+          "namakeluarga": "DEMI, NY / DARYUKI, TN (PONAKAN)",
+          "kd_pj": "BPJ",
+          "no_peserta": "0000631117822",
+          "kd_kel": 383,
+          "kd_kec": 10,
+          "kd_kab": 2860,
+          "pekerjaanpj": "IRT ",
+          "alamatpj": "-",
+          "kelurahanpj": "-",
+          "kecamatanpj": "-",
+          "kabupatenpj": "-",
+          "perusahaan_pasien": "-",
+          "suku_bangsa": 0,
+          "bahasa_pasien": 0,
+          "cacat_fisik": 0,
+          "email": "",
+          "nip": "-",
+          "kd_prop": 0,
+          "propinsipj": "-"
+        },
+        {
+          "no_rkm_medis": "-",
+          "nm_pasien": null,
+          "no_ktp": "-",
+          "jk": "L",
+          "tmp_lahir": "-",
+          "tgl_lahir": null,
+          "nm_ibu": "-",
+          "alamat": "-",
+          "gol_darah": "-",
+          "pekerjaan": "-",
+          "stts_nikah": "BELUM MENIKAH",
+          "agama": "-",
+          "tgl_daftar": null,
+          "no_tlp": "-",
+          "umur": "",
+          "pnd": "-",
+          "keluarga": "SAUDARA",
+          "namakeluarga": "-",
+          "kd_pj": "OW",
+          "no_peserta": "-",
+          "kd_kel": 0,
+          "kd_kec": 0,
+          "kd_kab": 0,
+          "pekerjaanpj": "-",
+          "alamatpj": "-",
+          "kelurahanpj": "-",
+          "kecamatanpj": "-",
+          "kabupatenpj": "-",
+          "perusahaan_pasien": "-",
+          "suku_bangsa": 0,
+          "bahasa_pasien": 0,
+          "cacat_fisik": 0,
+          "email": "",
+          "nip": "-",
+          "kd_prop": 0,
+          "propinsipj": ""
+        }
+      ]
+    },
+    "dokter": {
+      "columns": [
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nm_dokter",
+          "type": "varchar(50)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jk",
+          "type": "enum('L','P')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tmp_lahir",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_lahir",
+          "type": "date",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "gol_drh",
+          "type": "enum('A','B','O','AB','-')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "agama",
+          "type": "varchar(12)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "almt_tgl",
+          "type": "varchar(60)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_telp",
+          "type": "varchar(13)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts_nikah",
+          "type": "enum('BELUM MENIKAH','MENIKAH','JANDA','DUDHA','JOMBLO')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_sps",
+          "type": "char(5)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "alumni",
+          "type": "varchar(60)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_ijn_praktek",
+          "type": "varchar(120)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('0','1')",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_dokter"
+      ],
+      "foreign_keys": [
+        "kd_sps",
+        "kd_dokter"
+      ],
+      "relationships": [
+        "dokter.kd_sps → spesialis.kd_sps",
+        "dokter.kd_dokter → pegawai.nik"
+      ],
+      "sample_data": [
+        {
+          "kd_dokter": "-",
+          "nm_dokter": "-",
+          "jk": "L",
+          "tmp_lahir": "-",
+          "tgl_lahir": "2015-07-09",
+          "gol_drh": "A",
+          "agama": "ISLAM",
+          "almt_tgl": "-",
+          "no_telp": "",
+          "stts_nikah": "MENIKAH",
+          "kd_sps": "-",
+          "alumni": "",
+          "no_ijn_praktek": "",
+          "status": "1"
+        },
+        {
+          "kd_dokter": "D0000016",
+          "nm_dokter": "dr. Ariadne Tiara H,Sp.A",
+          "jk": "P",
+          "tmp_lahir": "-",
+          "tgl_lahir": "2016-06-15",
+          "gol_drh": "-",
+          "agama": "ISLAM",
+          "almt_tgl": "-",
+          "no_telp": "",
+          "stts_nikah": "MENIKAH",
+          "kd_sps": "S0011",
+          "alumni": "",
+          "no_ijn_praktek": "",
+          "status": "0"
+        },
+        {
+          "kd_dokter": "D0000017",
+          "nm_dokter": "dr. Ahmad Ridlo,Sp.OG",
+          "jk": "L",
+          "tmp_lahir": "-",
+          "tgl_lahir": "2016-06-15",
+          "gol_drh": "-",
+          "agama": "ISLAM",
+          "almt_tgl": "-",
+          "no_telp": "",
+          "stts_nikah": "MENIKAH",
+          "kd_sps": "S0012",
+          "alumni": "",
+          "no_ijn_praktek": "",
+          "status": "0"
+        }
+      ]
+    },
+    "reg_periksa": {
+      "columns": [
+        {
+          "name": "no_reg",
+          "type": "varchar(8)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_registrasi",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam_reg",
+          "type": "time",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_rkm_medis",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_poli",
+          "type": "char(5)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "p_jawab",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "almt_pj",
+          "type": "varchar(200)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "hubunganpj",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_reg",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts",
+          "type": "enum('Belum','Sudah','Batal','Berkas Diterima','Dirujuk','Meninggal','Dirawat','Pulang Paksa')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts_daftar",
+          "type": "enum('-','Lama','Baru')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status_lanjut",
+          "type": "enum('Ralan','Ranap')",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_pj",
+          "type": "char(3)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "umurdaftar",
+          "type": "int",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "sttsumur",
+          "type": "enum('Th','Bl','Hr')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status_bayar",
+          "type": "enum('Sudah Bayar','Belum Bayar')",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status_poli",
+          "type": "enum('Lama','Baru')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat"
+      ],
+      "foreign_keys": [
+        "kd_poli",
+        "kd_dokter",
+        "kd_pj",
+        "no_rkm_medis"
+      ],
+      "relationships": [
+        "reg_periksa.kd_poli → poliklinik.kd_poli",
+        "reg_periksa.kd_dokter → dokter.kd_dokter",
+        "reg_periksa.kd_pj → penjab.kd_pj",
+        "reg_periksa.no_rkm_medis → pasien.no_rkm_medis"
+      ],
+      "sample_data": [
+        {
+          "no_reg": "001",
+          "no_rawat": "2010/02/27/000001",
+          "tgl_registrasi": "2010-02-27",
+          "jam_reg": "9:18:14",
+          "kd_dokter": "DS000051",
+          "no_rkm_medis": "140547082",
+          "kd_poli": "U0020",
+          "p_jawab": "DASEM, NY ",
+          "almt_pj": "DUKUH SIJOHO 01/07, PAKUJATI, PAGUYANGAN, BREBES",
+          "hubunganpj": "ISTRI",
+          "biaya_reg": 0.0,
+          "stts": "Belum",
+          "stts_daftar": "Lama",
+          "status_lanjut": "Ralan",
+          "kd_pj": "BPJ",
+          "umurdaftar": 52,
+          "sttsumur": "Th",
+          "status_bayar": "Belum Bayar",
+          "status_poli": "Lama"
+        },
+        {
+          "no_reg": "001",
+          "no_rawat": "2010/10/14/000001",
+          "tgl_registrasi": "2010-10-14",
+          "jam_reg": "8:04:03",
+          "kd_dokter": "D0000019",
+          "no_rkm_medis": "1903099274",
+          "kd_poli": "6",
+          "p_jawab": "ABDUL ROSUL, TN",
+          "almt_pj": "BANDUNG 03/08, BUMIAYU, BUMIAYU, BREBES",
+          "hubunganpj": "SUAMI",
+          "biaya_reg": 0.0,
+          "stts": "Belum",
+          "stts_daftar": "Lama",
+          "status_lanjut": "Ralan",
+          "kd_pj": "BPJ",
+          "umurdaftar": 34,
+          "sttsumur": "Th",
+          "status_bayar": "Belum Bayar",
+          "status_poli": "Lama"
+        },
+        {
+          "no_reg": "001",
+          "no_rawat": "2010/10/14/000002",
+          "tgl_registrasi": "2010-10-14",
+          "jam_reg": "9:52:15",
+          "kd_dokter": "D0000053",
+          "no_rkm_medis": "2010118864",
+          "kd_poli": "U0021",
+          "p_jawab": "JOKO PRASETYO, TN",
+          "almt_pj": "BANJARSARI 01/05, BANJARSARI, BANTARKAWUNG, BREBES",
+          "hubunganpj": "SUAMI",
+          "biaya_reg": 0.0,
+          "stts": "Belum",
+          "stts_daftar": "Lama",
+          "status_lanjut": "Ralan",
+          "kd_pj": "BPJ",
+          "umurdaftar": 31,
+          "sttsumur": "Th",
+          "status_bayar": "Belum Bayar",
+          "status_poli": "Lama"
+        }
+      ]
+    },
+    "poliklinik": {
+      "columns": [
+        {
+          "name": "kd_poli",
+          "type": "char(5)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "nm_poli",
+          "type": "varchar(50)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "registrasi",
+          "type": "double",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "registrasilama",
+          "type": "double",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('0','1')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_poli"
+      ],
+      "foreign_keys": [],
+      "relationships": [],
+      "sample_data": [
+        {
+          "kd_poli": "-",
+          "nm_poli": "--",
+          "registrasi": 0.0,
+          "registrasilama": 0.0,
+          "status": "0"
+        },
+        {
+          "kd_poli": "1",
+          "nm_poli": "INSTALASI LABORATORIUM",
+          "registrasi": 0.0,
+          "registrasilama": 0.0,
+          "status": "1"
+        },
+        {
+          "kd_poli": "4",
+          "nm_poli": "Poli Spesialis Obsgyn sore",
+          "registrasi": 0.0,
+          "registrasilama": 0.0,
+          "status": "0"
+        }
+      ]
+    },
+    "penjab": {
+      "columns": [
+        {
+          "name": "kd_pj",
+          "type": "char(3)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "png_jawab",
+          "type": "varchar(30)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nama_perusahaan",
+          "type": "varchar(60)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "alamat_asuransi",
+          "type": "varchar(130)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_telp",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "attn",
+          "type": "varchar(60)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('0','1')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_pj"
+      ],
+      "foreign_keys": [],
+      "relationships": [],
+      "sample_data": [
+        {
+          "kd_pj": "-",
+          "png_jawab": "-",
+          "nama_perusahaan": "",
+          "alamat_asuransi": "",
+          "no_telp": "",
+          "attn": "",
+          "status": "1"
+        },
+        {
+          "kd_pj": "AK",
+          "png_jawab": "ADMEDIKA",
+          "nama_perusahaan": "",
+          "alamat_asuransi": "",
+          "no_telp": "",
+          "attn": "",
+          "status": "1"
+        },
+        {
+          "kd_pj": "AL",
+          "png_jawab": "ALODOKTER",
+          "nama_perusahaan": "",
+          "alamat_asuransi": "",
+          "no_telp": "",
+          "attn": "",
+          "status": "1"
+        }
+      ]
+    },
+    "kamar_inap": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "kd_kamar",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "trf_kamar",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "diagnosa_awal",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "diagnosa_akhir",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_masuk",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": "0000-00-00",
+          "extra": ""
+        },
+        {
+          "name": "jam_masuk",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": "00:00:00",
+          "extra": ""
+        },
+        {
+          "name": "tgl_keluar",
+          "type": "date",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam_keluar",
+          "type": "time",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "lama",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "ttl_biaya",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts_pulang",
+          "type": "enum('Sehat','Rujuk','APS','+','Meninggal','Sembuh','Membaik','Pulang Paksa','-','Pindah Kamar','Status Belum Lengkap','Atas Persetujuan Dokter','Atas Permintaan Sendiri','Isoman','Lain-lain')",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "tgl_masuk",
+        "jam_masuk"
+      ],
+      "foreign_keys": [
+        "kd_kamar",
+        "no_rawat"
+      ],
+      "relationships": [
+        "kamar_inap.kd_kamar → kamar.kd_kamar",
+        "kamar_inap.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2016/06/14/000003",
+          "kd_kamar": "BGV.2.A/ I",
+          "trf_kamar": 200000.0,
+          "diagnosa_awal": "",
+          "diagnosa_akhir": "-",
+          "tgl_masuk": "2016-06-14",
+          "jam_masuk": "20:27:18",
+          "tgl_keluar": "2016-06-14",
+          "jam_keluar": "20:27:52",
+          "lama": 1.0,
+          "ttl_biaya": 0.0,
+          "stts_pulang": "Pindah Kamar"
+        },
+        {
+          "no_rawat": "2016/06/14/000003",
+          "kd_kamar": "BGV.4.B/ II",
+          "trf_kamar": 200000.0,
+          "diagnosa_awal": "",
+          "diagnosa_akhir": "A00.0, ",
+          "tgl_masuk": "2016-06-14",
+          "jam_masuk": "20:27:52",
+          "tgl_keluar": "2016-06-14",
+          "jam_keluar": "20:29:07",
+          "lama": 1.0,
+          "ttl_biaya": 200000.0,
+          "stts_pulang": "Sembuh"
+        },
+        {
+          "no_rawat": "2016/06/16/000001",
+          "kd_kamar": "BGV.6.A/ III",
+          "trf_kamar": 300000.0,
+          "diagnosa_awal": "febris",
+          "diagnosa_akhir": "-",
+          "tgl_masuk": "2016-06-23",
+          "jam_masuk": "10:33:41",
+          "tgl_keluar": null,
+          "jam_keluar": "0:00:00",
+          "lama": 6.0,
+          "ttl_biaya": 1800000.0,
+          "stts_pulang": "Sembuh"
+        }
+      ]
+    },
+    "bangsal": {
+      "columns": [
+        {
+          "name": "kd_bangsal",
+          "type": "char(5)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nm_bangsal",
+          "type": "varchar(30)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('0','1')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_bangsal"
+      ],
+      "foreign_keys": [],
+      "relationships": [],
+      "sample_data": [
+        {
+          "kd_bangsal": "-",
+          "nm_bangsal": "-",
+          "status": "1"
+        },
+        {
+          "kd_bangsal": "AGR",
+          "nm_bangsal": "ANGGREK",
+          "status": "1"
+        },
+        {
+          "kd_bangsal": "AGR3",
+          "nm_bangsal": "ANGGREK KELAS 3",
+          "status": "0"
+        }
+      ]
+    },
+    "kamar": {
+      "columns": [
+        {
+          "name": "kd_kamar",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_bangsal",
+          "type": "char(5)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "trf_kamar",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('ISI','KOSONG','DIBERSIHKAN','DIBOOKING')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kelas",
+          "type": "enum('Kelas 1','Kelas 2','Kelas 3','Kelas Utama','Kelas VIP','Kelas VVIP')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "statusdata",
+          "type": "enum('0','1')",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_kamar"
+      ],
+      "foreign_keys": [
+        "kd_bangsal"
+      ],
+      "relationships": [
+        "kamar.kd_bangsal → bangsal.kd_bangsal"
+      ],
+      "sample_data": [
+        {
+          "kd_kamar": "AGR.01/ VIP",
+          "kd_bangsal": "AGR",
+          "trf_kamar": 550000.0,
+          "status": "KOSONG",
+          "kelas": "Kelas VIP",
+          "statusdata": "1"
+        },
+        {
+          "kd_kamar": "AGR.02 / VIP",
+          "kd_bangsal": "AGR",
+          "trf_kamar": 550000.0,
+          "status": "KOSONG",
+          "kelas": "Kelas VIP",
+          "statusdata": "1"
+        },
+        {
+          "kd_kamar": "AGR.03 / VIP",
+          "kd_bangsal": "AGR",
+          "trf_kamar": 550000.0,
+          "status": "ISI",
+          "kelas": "Kelas VIP",
+          "statusdata": "1"
+        }
+      ]
+    },
+    "penyakit": {
+      "columns": [
+        {
+          "name": "kd_penyakit",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nm_penyakit",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "ciri_ciri",
+          "type": "text",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keterangan",
+          "type": "varchar(60)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_ktg",
+          "type": "varchar(8)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('Menular','Tidak Menular')",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "kd_penyakit"
+      ],
+      "foreign_keys": [
+        "kd_ktg"
+      ],
+      "relationships": [
+        "penyakit.kd_ktg → kategori_penyakit.kd_ktg"
+      ],
+      "sample_data": [
+        {
+          "kd_penyakit": "",
+          "nm_penyakit": "",
+          "ciri_ciri": "",
+          "keterangan": "-",
+          "kd_ktg": "-",
+          "status": "Tidak Menular"
+        },
+        {
+          "kd_penyakit": "-",
+          "nm_penyakit": "-",
+          "ciri_ciri": "-",
+          "keterangan": "-",
+          "kd_ktg": "-",
+          "status": "Menular"
+        },
+        {
+          "kd_penyakit": "A00",
+          "nm_penyakit": "Cholera",
+          "ciri_ciri": "Cholera",
+          "keterangan": "-",
+          "kd_ktg": "-",
+          "status": "Menular"
+        }
+      ]
+    },
+    "diagnosa_pasien": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_penyakit",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('Ralan','Ranap')",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "prioritas",
+          "type": "tinyint",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status_penyakit",
+          "type": "enum('Lama','Baru')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "kd_penyakit",
+        "status"
+      ],
+      "foreign_keys": [
+        "no_rawat",
+        "kd_penyakit"
+      ],
+      "relationships": [
+        "diagnosa_pasien.no_rawat → reg_periksa.no_rawat",
+        "diagnosa_pasien.kd_penyakit → penyakit.kd_penyakit"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2016/06/14/000001",
+          "kd_penyakit": "A04",
+          "status": "Ralan",
+          "prioritas": 1,
+          "status_penyakit": "Lama"
+        },
+        {
+          "no_rawat": "2016/06/14/000001",
+          "kd_penyakit": "O62.4",
+          "status": "Ralan",
+          "prioritas": 2,
+          "status_penyakit": "Lama"
+        },
+        {
+          "no_rawat": "2016/06/14/000002",
+          "kd_penyakit": "A01.1",
+          "status": "Ralan",
+          "prioritas": 2,
+          "status_penyakit": "Lama"
+        }
+      ]
+    },
+    "rawat_jl_dr": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "kd_jenis_prw",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_perawatan",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam_rawat",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "material",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bhp",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakandr",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kso",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "menejemen",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_rawat",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "stts_bayar",
+          "type": "enum('Sudah','Belum','Suspen')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "kd_jenis_prw",
+        "kd_dokter",
+        "tgl_perawatan",
+        "jam_rawat"
+      ],
+      "foreign_keys": [
+        "kd_jenis_prw",
+        "kd_dokter",
+        "no_rawat"
+      ],
+      "relationships": [
+        "rawat_jl_dr.kd_jenis_prw → jns_perawatan.kd_jenis_prw",
+        "rawat_jl_dr.kd_dokter → dokter.kd_dokter",
+        "rawat_jl_dr.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2010/02/27/000001",
+          "kd_jenis_prw": "BPJS0001",
+          "kd_dokter": "DS000051",
+          "tgl_perawatan": "2010-02-27",
+          "jam_rawat": "9:18:30",
+          "material": 12500.0,
+          "bhp": 0.0,
+          "tarif_tindakandr": 50000.0,
+          "kso": 0.0,
+          "menejemen": 12500.0,
+          "biaya_rawat": 75000.0,
+          "stts_bayar": "Belum"
+        },
+        {
+          "no_rawat": "2010/02/27/000001",
+          "kd_jenis_prw": "RJ50141",
+          "kd_dokter": "DS000051",
+          "tgl_perawatan": "2010-02-27",
+          "jam_rawat": "9:18:30",
+          "material": 10000.0,
+          "bhp": 10000.0,
+          "tarif_tindakandr": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya_rawat": 20000.0,
+          "stts_bayar": "Belum"
+        },
+        {
+          "no_rawat": "2010/10/14/000001",
+          "kd_jenis_prw": "BPJS0010",
+          "kd_dokter": "D0000019",
+          "tgl_perawatan": "2010-10-14",
+          "jam_rawat": "8:05:29",
+          "material": 20000.0,
+          "bhp": 10000.0,
+          "tarif_tindakandr": 25000.0,
+          "kso": 0.0,
+          "menejemen": 10000.0,
+          "biaya_rawat": 65000.0,
+          "stts_bayar": "Belum"
+        }
+      ]
+    },
+    "rawat_inap_dr": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "kd_jenis_prw",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_perawatan",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": "0000-00-00",
+          "extra": ""
+        },
+        {
+          "name": "jam_rawat",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": "00:00:00",
+          "extra": ""
+        },
+        {
+          "name": "material",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bhp",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakandr",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kso",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "menejemen",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_rawat",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "kd_jenis_prw",
+        "kd_dokter",
+        "tgl_perawatan",
+        "jam_rawat"
+      ],
+      "foreign_keys": [
+        "kd_dokter",
+        "kd_jenis_prw",
+        "no_rawat"
+      ],
+      "relationships": [
+        "rawat_inap_dr.kd_dokter → dokter.kd_dokter",
+        "rawat_inap_dr.kd_jenis_prw → jns_perawatan_inap.kd_jenis_prw",
+        "rawat_inap_dr.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2018/11/13/000079",
+          "kd_jenis_prw": "J000402",
+          "kd_dokter": "D0000030 ",
+          "tgl_perawatan": "2018-11-21",
+          "jam_rawat": "8:32:18",
+          "material": 15000.0,
+          "bhp": 0.0,
+          "tarif_tindakandr": 50000.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya_rawat": 65000.0
+        },
+        {
+          "no_rawat": "2018/11/13/000079",
+          "kd_jenis_prw": "J000404",
+          "kd_dokter": "D0000030 ",
+          "tgl_perawatan": "2018-11-21",
+          "jam_rawat": "8:36:10",
+          "material": 5000.0,
+          "bhp": 0.0,
+          "tarif_tindakandr": 10000.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya_rawat": 15000.0
+        },
+        {
+          "no_rawat": "2018/11/13/000079",
+          "kd_jenis_prw": "J000409",
+          "kd_dokter": "D0000030 ",
+          "tgl_perawatan": "2018-11-21",
+          "jam_rawat": "8:32:15",
+          "material": 10000.0,
+          "bhp": 0.0,
+          "tarif_tindakandr": 30000.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya_rawat": 40000.0
+        }
+      ]
+    },
+    "periksa_lab": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nip",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_jenis_prw",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_periksa",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_perujuk",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bagian_rs",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bhp",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_perujuk",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakan_dokter",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakan_petugas",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kso",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "menejemen",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('Ralan','Ranap')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kategori",
+          "type": "enum('PA','PK','MB')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "kd_jenis_prw",
+        "tgl_periksa",
+        "jam"
+      ],
+      "foreign_keys": [
+        "nip",
+        "kd_jenis_prw",
+        "dokter_perujuk",
+        "kd_dokter",
+        "no_rawat"
+      ],
+      "relationships": [
+        "periksa_lab.nip → petugas.nip",
+        "periksa_lab.kd_jenis_prw → jns_perawatan_lab.kd_jenis_prw",
+        "periksa_lab.dokter_perujuk → dokter.kd_dokter",
+        "periksa_lab.kd_dokter → dokter.kd_dokter",
+        "periksa_lab.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2018/11/06/000116",
+          "nip": "laborat",
+          "kd_jenis_prw": "J000028",
+          "tgl_periksa": "2018-11-06",
+          "jam": "14:33:54",
+          "dokter_perujuk": "D0000020",
+          "bagian_rs": 50000.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 5000.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 55000.0,
+          "kd_dokter": "DU000004",
+          "status": "Ralan",
+          "kategori": "PK"
+        },
+        {
+          "no_rawat": "2018/11/06/000116",
+          "nip": "laborat",
+          "kd_jenis_prw": "J000029",
+          "tgl_periksa": "2018-11-06",
+          "jam": "14:33:54",
+          "dokter_perujuk": "D0000020",
+          "bagian_rs": 180000.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 18000.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 198000.0,
+          "kd_dokter": "DU000004",
+          "status": "Ralan",
+          "kategori": "PK"
+        },
+        {
+          "no_rawat": "2018/11/24/000005",
+          "nip": "laborat",
+          "kd_jenis_prw": "J000003",
+          "tgl_periksa": "2018-11-24",
+          "jam": "10:49:03",
+          "dokter_perujuk": "DS000027",
+          "bagian_rs": 25000.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 2500.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 27500.0,
+          "kd_dokter": "DS000027",
+          "status": "Ralan",
+          "kategori": "PK"
+        }
+      ]
+    },
+    "periksa_radiologi": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nip",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_jenis_prw",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_periksa",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_perujuk",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bagian_rs",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bhp",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_perujuk",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakan_dokter",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tarif_tindakan_petugas",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kso",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "menejemen",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('Ranap','Ralan')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "proyeksi",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kV",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "mAS",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "FFD",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "BSF",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "inak",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jml_penyinaran",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dosis",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "kd_jenis_prw",
+        "tgl_periksa",
+        "jam"
+      ],
+      "foreign_keys": [
+        "no_rawat",
+        "nip",
+        "kd_jenis_prw",
+        "kd_dokter",
+        "dokter_perujuk"
+      ],
+      "relationships": [
+        "periksa_radiologi.no_rawat → reg_periksa.no_rawat",
+        "periksa_radiologi.nip → petugas.nip",
+        "periksa_radiologi.kd_jenis_prw → jns_perawatan_radiologi.kd_jenis_prw",
+        "periksa_radiologi.kd_dokter → dokter.kd_dokter",
+        "periksa_radiologi.dokter_perujuk → dokter.kd_dokter"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2018/12/11/000107",
+          "nip": "laborat",
+          "kd_jenis_prw": "THORAX",
+          "tgl_periksa": "2018-12-12",
+          "jam": "10:45:35",
+          "dokter_perujuk": "DS000009",
+          "bagian_rs": 67500.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 7500.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 75000.0,
+          "kd_dokter": "DS000009",
+          "status": "Ranap",
+          "proyeksi": "",
+          "kV": "",
+          "mAS": "",
+          "FFD": "",
+          "BSF": "",
+          "inak": "",
+          "jml_penyinaran": "",
+          "dosis": ""
+        },
+        {
+          "no_rawat": "2019/03/14/000114",
+          "nip": "-",
+          "kd_jenis_prw": "J000001",
+          "tgl_periksa": "2019-03-16",
+          "jam": "19:01:13",
+          "dokter_perujuk": "DS000009",
+          "bagian_rs": 67500.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 7500.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 75000.0,
+          "kd_dokter": "DS000009",
+          "status": "Ranap",
+          "proyeksi": "",
+          "kV": "",
+          "mAS": "",
+          "FFD": "",
+          "BSF": "",
+          "inak": "",
+          "jml_penyinaran": "",
+          "dosis": ""
+        },
+        {
+          "no_rawat": "2019/03/15/000135",
+          "nip": "-",
+          "kd_jenis_prw": "BNO/ABDOMEN",
+          "tgl_periksa": "2019-03-15",
+          "jam": "20:10:02",
+          "dokter_perujuk": "DS000026",
+          "bagian_rs": 67500.0,
+          "bhp": 0.0,
+          "tarif_perujuk": 0.0,
+          "tarif_tindakan_dokter": 7500.0,
+          "tarif_tindakan_petugas": 0.0,
+          "kso": 0.0,
+          "menejemen": 0.0,
+          "biaya": 75000.0,
+          "kd_dokter": "DS000026",
+          "status": "Ranap",
+          "proyeksi": "",
+          "kV": "",
+          "mAS": "",
+          "FFD": "",
+          "BSF": "",
+          "inak": "",
+          "jml_penyinaran": "",
+          "dosis": ""
+        }
+      ]
+    },
+    "obat_racikan": {
+      "columns": [
+        {
+          "name": "tgl_perawatan",
+          "type": "date",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_racik",
+          "type": "varchar(2)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nama_racik",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_racik",
+          "type": "varchar(3)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jml_dr",
+          "type": "int",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "aturan_pakai",
+          "type": "varchar(150)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keterangan",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "tgl_perawatan",
+        "jam",
+        "no_rawat",
+        "no_racik"
+      ],
+      "foreign_keys": [
+        "no_rawat",
+        "kd_racik"
+      ],
+      "relationships": [
+        "obat_racikan.no_rawat → reg_periksa.no_rawat",
+        "obat_racikan.kd_racik → metode_racik.kd_racik"
+      ],
+      "sample_data": [
+        {
+          "tgl_perawatan": "2019-08-07",
+          "jam": "12:33:13",
+          "no_rawat": "2019/08/07/000074",
+          "no_racik": "1",
+          "nama_racik": "RACIKAN BATUK",
+          "kd_racik": "R01",
+          "jml_dr": 30,
+          "aturan_pakai": "-",
+          "keterangan": "-"
+        },
+        {
+          "tgl_perawatan": "2019-08-07",
+          "jam": "13:15:44",
+          "no_rawat": "2019/08/07/000074",
+          "no_racik": "1",
+          "nama_racik": "PARACETAMOL",
+          "kd_racik": "R01",
+          "jml_dr": 30,
+          "aturan_pakai": "-",
+          "keterangan": "-"
+        },
+        {
+          "tgl_perawatan": "2019-08-09",
+          "jam": "9:18:39",
+          "no_rawat": "2019/08/07/000096",
+          "no_racik": "1",
+          "nama_racik": "racikan batuk",
+          "kd_racik": "R01",
+          "jml_dr": 10,
+          "aturan_pakai": "3x1",
+          "keterangan": "sesudah makan"
+        }
+      ]
+    },
+    "resep_dokter": {
+      "columns": [
+        {
+          "name": "no_resep",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kode_brng",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jml",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "aturan_pakai",
+          "type": "varchar(150)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [],
+      "foreign_keys": [
+        "no_resep",
+        "kode_brng"
+      ],
+      "relationships": [
+        "resep_dokter.no_resep → resep_obat.no_resep",
+        "resep_dokter.kode_brng → databarang.kode_brng"
+      ],
+      "sample_data": [
+        {
+          "no_resep": "2018000001",
+          "kode_brng": "020235",
+          "jml": 5.0,
+          "aturan_pakai": "3x1"
+        },
+        {
+          "no_resep": "2018290003",
+          "kode_brng": "020235",
+          "jml": 8.0,
+          "aturan_pakai": ""
+        },
+        {
+          "no_resep": "2019000001",
+          "kode_brng": "B000009681",
+          "jml": 2.0,
+          "aturan_pakai": ""
+        }
+      ]
+    },
+    "operasi": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_operasi",
+          "type": "datetime",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jenis_anasthesi",
+          "type": "varchar(8)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kategori",
+          "type": "enum('-','Khusus','Besar','Sedang','Kecil','Elektive','Emergency')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "operator1",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "operator2",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "operator3",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asisten_operator1",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asisten_operator2",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asisten_operator3",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "instrumen",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_anak",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "perawaat_resusitas",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_anestesi",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asisten_anestesi",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asisten_anestesi2",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bidan",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bidan2",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bidan3",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "perawat_luar",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "omloop",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "omloop2",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "omloop3",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "omloop4",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "omloop5",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_pjanak",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "dokter_umum",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kode_paket",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "PRI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaoperator1",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaoperator2",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaoperator3",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaasisten_operator1",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaasisten_operator2",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaasisten_operator3",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayainstrumen",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayadokter_anak",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaperawaat_resusitas",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayadokter_anestesi",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaasisten_anestesi",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaasisten_anestesi2",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayabidan",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayabidan2",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayabidan3",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaperawat_luar",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayaalat",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayasewaok",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "akomodasi",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "bagian_rs",
+          "type": "double",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_omloop",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_omloop2",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_omloop3",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_omloop4",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_omloop5",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biayasarpras",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_dokter_pjanak",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "biaya_dokter_umum",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "status",
+          "type": "enum('Ranap','Ralan')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat",
+        "tgl_operasi",
+        "kode_paket"
+      ],
+      "foreign_keys": [
+        "no_rawat",
+        "operator1",
+        "operator2",
+        "operator3",
+        "asisten_operator1",
+        "asisten_operator2",
+        "instrumen",
+        "dokter_anak",
+        "perawaat_resusitas",
+        "dokter_anestesi",
+        "asisten_anestesi",
+        "bidan",
+        "perawat_luar",
+        "kode_paket",
+        "bidan2",
+        "bidan3",
+        "omloop",
+        "omloop2",
+        "omloop3",
+        "dokter_pjanak",
+        "dokter_umum",
+        "asisten_operator3",
+        "asisten_anestesi2",
+        "omloop4",
+        "omloop5"
+      ],
+      "relationships": [
+        "operasi.no_rawat → reg_periksa.no_rawat",
+        "operasi.operator1 → dokter.kd_dokter",
+        "operasi.operator2 → dokter.kd_dokter",
+        "operasi.operator3 → dokter.kd_dokter",
+        "operasi.asisten_operator1 → petugas.nip",
+        "operasi.asisten_operator2 → petugas.nip",
+        "operasi.instrumen → petugas.nip",
+        "operasi.dokter_anak → dokter.kd_dokter",
+        "operasi.perawaat_resusitas → petugas.nip",
+        "operasi.dokter_anestesi → dokter.kd_dokter",
+        "operasi.asisten_anestesi → petugas.nip",
+        "operasi.bidan → petugas.nip",
+        "operasi.perawat_luar → petugas.nip",
+        "operasi.kode_paket → paket_operasi.kode_paket",
+        "operasi.bidan2 → petugas.nip",
+        "operasi.bidan3 → petugas.nip",
+        "operasi.omloop → petugas.nip",
+        "operasi.omloop2 → petugas.nip",
+        "operasi.omloop3 → petugas.nip",
+        "operasi.dokter_pjanak → dokter.kd_dokter",
+        "operasi.dokter_umum → dokter.kd_dokter",
+        "operasi.asisten_operator3 → petugas.nip",
+        "operasi.asisten_anestesi2 → petugas.nip",
+        "operasi.omloop4 → petugas.nip",
+        "operasi.omloop5 → petugas.nip"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2018/11/17/000072",
+          "tgl_operasi": "2018-11-19 15:21:45",
+          "jenis_anasthesi": "spinal",
+          "kategori": "-",
+          "operator1": "DS000010",
+          "operator2": "-",
+          "operator3": "-",
+          "asisten_operator1": "-",
+          "asisten_operator2": "-",
+          "asisten_operator3": "-",
+          "instrumen": "-",
+          "dokter_anak": "-",
+          "perawaat_resusitas": "-",
+          "dokter_anestesi": "-",
+          "asisten_anestesi": "-",
+          "asisten_anestesi2": "-",
+          "bidan": "-",
+          "bidan2": "-",
+          "bidan3": "-",
+          "perawat_luar": "-",
+          "omloop": "-",
+          "omloop2": "-",
+          "omloop3": "-",
+          "omloop4": "-",
+          "omloop5": "-",
+          "dokter_pjanak": "-",
+          "dokter_umum": "-",
+          "kode_paket": "PKVIP004",
+          "biayaoperator1": 2250000.0,
+          "biayaoperator2": 0.0,
+          "biayaoperator3": 0.0,
+          "biayaasisten_operator1": 250000.0,
+          "biayaasisten_operator2": 250000.0,
+          "biayaasisten_operator3": 0.0,
+          "biayainstrumen": 0.0,
+          "biayadokter_anak": 100000.0,
+          "biayaperawaat_resusitas": 0.0,
+          "biayadokter_anestesi": 850000.0,
+          "biayaasisten_anestesi": 500000.0,
+          "biayaasisten_anestesi2": 0.0,
+          "biayabidan": 0.0,
+          "biayabidan2": 0.0,
+          "biayabidan3": 0.0,
+          "biayaperawat_luar": 0.0,
+          "biayaalat": 250000.0,
+          "biayasewaok": 80000.0,
+          "akomodasi": 300000.0,
+          "bagian_rs": 0.0,
+          "biaya_omloop": 0.0,
+          "biaya_omloop2": 0.0,
+          "biaya_omloop3": 0.0,
+          "biaya_omloop4": 0.0,
+          "biaya_omloop5": 0.0,
+          "biayasarpras": 0.0,
+          "biaya_dokter_pjanak": 0.0,
+          "biaya_dokter_umum": 0.0,
+          "status": "Ranap"
+        },
+        {
+          "no_rawat": "2018/11/17/000072",
+          "tgl_operasi": "2018-11-19 15:24:04",
+          "jenis_anasthesi": "safds",
+          "kategori": "-",
+          "operator1": "DS000010",
+          "operator2": "-",
+          "operator3": "-",
+          "asisten_operator1": "-",
+          "asisten_operator2": "-",
+          "asisten_operator3": "-",
+          "instrumen": "-",
+          "dokter_anak": "-",
+          "perawaat_resusitas": "-",
+          "dokter_anestesi": "-",
+          "asisten_anestesi": "-",
+          "asisten_anestesi2": "-",
+          "bidan": "-",
+          "bidan2": "-",
+          "bidan3": "-",
+          "perawat_luar": "-",
+          "omloop": "-",
+          "omloop2": "-",
+          "omloop3": "-",
+          "omloop4": "-",
+          "omloop5": "-",
+          "dokter_pjanak": "-",
+          "dokter_umum": "-",
+          "kode_paket": "PK000009",
+          "biayaoperator1": 1000000.0,
+          "biayaoperator2": 0.0,
+          "biayaoperator3": 0.0,
+          "biayaasisten_operator1": 125000.0,
+          "biayaasisten_operator2": 125000.0,
+          "biayaasisten_operator3": 0.0,
+          "biayainstrumen": 35000.0,
+          "biayadokter_anak": 0.0,
+          "biayaperawaat_resusitas": 0.0,
+          "biayadokter_anestesi": 500000.0,
+          "biayaasisten_anestesi": 250000.0,
+          "biayaasisten_anestesi2": 0.0,
+          "biayabidan": 0.0,
+          "biayabidan2": 0.0,
+          "biayabidan3": 0.0,
+          "biayaperawat_luar": 0.0,
+          "biayaalat": 200000.0,
+          "biayasewaok": 350000.0,
+          "akomodasi": 0.0,
+          "bagian_rs": 0.0,
+          "biaya_omloop": 0.0,
+          "biaya_omloop2": 0.0,
+          "biaya_omloop3": 0.0,
+          "biaya_omloop4": 0.0,
+          "biaya_omloop5": 0.0,
+          "biayasarpras": 0.0,
+          "biaya_dokter_pjanak": 0.0,
+          "biaya_dokter_umum": 0.0,
+          "status": "Ranap"
+        },
+        {
+          "no_rawat": "2019/02/01/000120",
+          "tgl_operasi": "2019-02-05 10:15:11",
+          "jenis_anasthesi": "spinal",
+          "kategori": "-",
+          "operator1": "DS000011",
+          "operator2": "-",
+          "operator3": "-",
+          "asisten_operator1": "-",
+          "asisten_operator2": "-",
+          "asisten_operator3": "-",
+          "instrumen": "-",
+          "dokter_anak": "-",
+          "perawaat_resusitas": "-",
+          "dokter_anestesi": "-",
+          "asisten_anestesi": "-",
+          "asisten_anestesi2": "-",
+          "bidan": "-",
+          "bidan2": "-",
+          "bidan3": "-",
+          "perawat_luar": "-",
+          "omloop": "-",
+          "omloop2": "-",
+          "omloop3": "-",
+          "omloop4": "-",
+          "omloop5": "-",
+          "dokter_pjanak": "-",
+          "dokter_umum": "-",
+          "kode_paket": "PKNON011",
+          "biayaoperator1": 800000.0,
+          "biayaoperator2": 0.0,
+          "biayaoperator3": 0.0,
+          "biayaasisten_operator1": 80000.0,
+          "biayaasisten_operator2": 0.0,
+          "biayaasisten_operator3": 0.0,
+          "biayainstrumen": 184000.0,
+          "biayadokter_anak": 0.0,
+          "biayaperawaat_resusitas": 0.0,
+          "biayadokter_anestesi": 250000.0,
+          "biayaasisten_anestesi": 250000.0,
+          "biayaasisten_anestesi2": 250000.0,
+          "biayabidan": 0.0,
+          "biayabidan2": 0.0,
+          "biayabidan3": 0.0,
+          "biayaperawat_luar": 0.0,
+          "biayaalat": 594000.0,
+          "biayasewaok": 569000.0,
+          "akomodasi": 285000.0,
+          "bagian_rs": 554000.0,
+          "biaya_omloop": 25000.0,
+          "biaya_omloop2": 25000.0,
+          "biaya_omloop3": 0.0,
+          "biaya_omloop4": 0.0,
+          "biaya_omloop5": 0.0,
+          "biayasarpras": 234000.0,
+          "biaya_dokter_pjanak": 0.0,
+          "biaya_dokter_umum": 0.0,
+          "status": "Ranap"
+        }
+      ]
+    },
+    "rujuk": {
+      "columns": [
+        {
+          "name": "no_rujuk",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "rujuk_ke",
+          "type": "varchar(150)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tgl_rujuk",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keterangan_diagnosa",
+          "type": "text",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kat_rujuk",
+          "type": "enum('-','Bedah','Non Bedah','Kebidanan','Anak')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "ambulance",
+          "type": "enum('-','AGD','SENDIRI','SWASTA')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keterangan",
+          "type": "text",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [],
+      "foreign_keys": [
+        "kd_dokter",
+        "no_rawat"
+      ],
+      "relationships": [
+        "rujuk.kd_dokter → dokter.kd_dokter",
+        "rujuk.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rujuk": "R000000001",
+          "no_rawat": "2018/12/16/000003",
+          "rujuk_ke": "RSUD BANYUMAS",
+          "tgl_rujuk": "2018-12-16",
+          "keterangan_diagnosa": "SNH . HT",
+          "kd_dokter": "D0000030",
+          "kat_rujuk": "-",
+          "ambulance": "-",
+          "keterangan": "-",
+          "jam": "11:50:12"
+        },
+        {
+          "no_rujuk": "R000000002",
+          "no_rawat": "2018/12/16/000013",
+          "rujuk_ke": "RSMS PURWOKERTO",
+          "tgl_rujuk": "2018-12-16",
+          "keterangan_diagnosa": "ILEUS ",
+          "kd_dokter": "DU000002",
+          "kat_rujuk": "-",
+          "ambulance": "-",
+          "keterangan": "-",
+          "jam": "19:19:24"
+        },
+        {
+          "no_rujuk": "R000000003",
+          "no_rawat": "2018/12/15/000086",
+          "rujuk_ke": "RSUD MARGONO",
+          "tgl_rujuk": "2018-12-22",
+          "keterangan_diagnosa": "GEA,CKD, LEUKOSITIS",
+          "kd_dokter": "DU000005",
+          "kat_rujuk": "Non Bedah",
+          "ambulance": "-",
+          "keterangan": "-",
+          "jam": "8:25:50"
+        }
+      ]
+    },
+    "bridging_sep": {
+      "columns": [
+        {
+          "name": "no_sep",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tglsep",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tglrujukan",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_rujukan",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdppkrujukan",
+          "type": "varchar(12)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmppkrujukan",
+          "type": "varchar(200)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdppkpelayanan",
+          "type": "varchar(12)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmppkpelayanan",
+          "type": "varchar(200)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jnspelayanan",
+          "type": "enum('1','2')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "catatan",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "diagawal",
+          "type": "varchar(10)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmdiagnosaawal",
+          "type": "varchar(400)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdpolitujuan",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmpolitujuan",
+          "type": "varchar(50)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "klsrawat",
+          "type": "enum('1','2','3')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "klsnaik",
+          "type": "enum('','1','2','3','4','5','6','7','8')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "pembiayaan",
+          "type": "enum('','1','2','3')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "pjnaikkelas",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "lakalantas",
+          "type": "enum('0','1','2','3')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "user",
+          "type": "varchar(25)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nomr",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nama_pasien",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tanggal_lahir",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "peserta",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jkel",
+          "type": "enum('L','P')",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_kartu",
+          "type": "varchar(25)",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tglpulang",
+          "type": "datetime",
+          "nullable": true,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asal_rujukan",
+          "type": "enum('1. Faskes 1','2. Faskes 2(RS)')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "eksekutif",
+          "type": "enum('0. Tidak','1.Ya')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "cob",
+          "type": "enum('0. Tidak','1.Ya')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "notelep",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "katarak",
+          "type": "enum('0. Tidak','1.Ya')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tglkkl",
+          "type": "date",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "keterangankkl",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "suplesi",
+          "type": "enum('0. Tidak','1.Ya')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "no_sep_suplesi",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdprop",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmprop",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdkab",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmkab",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kdkec",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmkec",
+          "type": "varchar(50)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "noskdp",
+          "type": "varchar(40)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kddpjp",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmdpdjp",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tujuankunjungan",
+          "type": "enum('0','1','2')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "flagprosedur",
+          "type": "enum('','0','1')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "penunjang",
+          "type": "enum('','1','2','3','4','5','6','7','8','9','10','11','12')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "asesmenpelayanan",
+          "type": "enum('','1','2','3','4','5')",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "kddpjplayanan",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "nmdpjplayanan",
+          "type": "varchar(100)",
+          "nullable": false,
+          "key": "",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_sep"
+      ],
+      "foreign_keys": [
+        "no_rawat"
+      ],
+      "relationships": [
+        "bridging_sep.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_sep": "",
+          "no_rawat": "2023/01/07/000192",
+          "tglsep": "2023-01-07",
+          "tglrujukan": "2022-11-12",
+          "no_rujukan": "110905011122P000974",
+          "kdppkrujukan": "11090501",
+          "nmppkrujukan": "Sirampog ",
+          "kdppkpelayanan": "0169R010",
+          "nmppkpelayanan": "RSU ALLAM MEDICA",
+          "jnspelayanan": "2",
+          "catatan": "PADANAMA 06/02 MENDALA",
+          "diagawal": "A15.9",
+          "nmdiagnosaawal": "A15.9 - Respiratory tuberculosis unspecified, confirmed bacteriologically and histologically",
+          "kdpolitujuan": "ANA",
+          "nmpolitujuan": "ANAK",
+          "klsrawat": "3",
+          "klsnaik": "",
+          "pembiayaan": "",
+          "pjnaikkelas": "",
+          "lakalantas": "0",
+          "user": "IRMAMD",
+          "nomr": "1911108545",
+          "nama_pasien": "MUHAMMAD FAREL ALFAZA. AN ",
+          "tanggal_lahir": "2017-07-31",
+          "peserta": "PEGAWAI SWASTA",
+          "jkel": "L",
+          "no_kartu": "0002354229022",
+          "tglpulang": "2023-01-07 09:02:38",
+          "asal_rujukan": "1. Faskes 1",
+          "eksekutif": "0. Tidak",
+          "cob": "0. Tidak",
+          "notelep": "085711159992",
+          "katarak": "0. Tidak",
+          "tglkkl": null,
+          "keterangankkl": "",
+          "suplesi": "0. Tidak",
+          "no_sep_suplesi": "",
+          "kdprop": "",
+          "nmprop": "",
+          "kdkab": "",
+          "nmkab": "",
+          "kdkec": "",
+          "nmkec": "",
+          "noskdp": "",
+          "kddpjp": "27882",
+          "nmdpdjp": "dr Deddy Hediyanto Sp.A",
+          "tujuankunjungan": "0",
+          "flagprosedur": "",
+          "penunjang": "",
+          "asesmenpelayanan": "2",
+          "kddpjplayanan": "27882",
+          "nmdpjplayanan": "dr Deddy Hediyanto Sp.A"
+        },
+        {
+          "no_sep": " 0169R0100125V005834",
+          "no_rawat": "2025/01/24/000395",
+          "tglsep": "2025-01-24",
+          "tglrujukan": "2025-01-24",
+          "no_rujukan": "",
+          "kdppkrujukan": "11090602",
+          "nmppkrujukan": "Kutamendala ",
+          "kdppkpelayanan": "0169R010",
+          "nmppkpelayanan": "RSU ALLAM MEDICA",
+          "jnspelayanan": "2",
+          "catatan": "-",
+          "diagawal": "",
+          "nmdiagnosaawal": "",
+          "kdpolitujuan": "ANA",
+          "nmpolitujuan": "ANAK",
+          "klsrawat": "1",
+          "klsnaik": "",
+          "pembiayaan": "",
+          "pjnaikkelas": "",
+          "lakalantas": "0",
+          "user": "G.1121.89",
+          "nomr": "173856",
+          "nama_pasien": "BAYI NYONYA SITA SULASMI",
+          "tanggal_lahir": "2025-01-15",
+          "peserta": "PEGAWAI SWASTA",
+          "jkel": "L",
+          "no_kartu": "0003641062768",
+          "tglpulang": null,
+          "asal_rujukan": "1. Faskes 1",
+          "eksekutif": "0. Tidak",
+          "cob": "0. Tidak",
+          "notelep": "087879358135",
+          "katarak": "0. Tidak",
+          "tglkkl": null,
+          "keterangankkl": "",
+          "suplesi": "0. Tidak",
+          "no_sep_suplesi": "",
+          "kdprop": "",
+          "nmprop": "",
+          "kdkab": "",
+          "nmkab": "",
+          "kdkec": "",
+          "nmkec": "",
+          "noskdp": "",
+          "kddpjp": "27882",
+          "nmdpdjp": "DEDDY HEDIYANTO, Sp. A",
+          "tujuankunjungan": "0",
+          "flagprosedur": "",
+          "penunjang": "",
+          "asesmenpelayanan": "",
+          "kddpjplayanan": "",
+          "nmdpjplayanan": ""
+        },
+        {
+          "no_sep": " 0169R0100423V003335",
+          "no_rawat": "2023/04/22/000046",
+          "tglsep": "2023-04-23",
+          "tglrujukan": "2023-04-23",
+          "no_rujukan": "",
+          "kdppkrujukan": "11090301",
+          "nmppkrujukan": "Bumiayu  ",
+          "kdppkpelayanan": "0169R010",
+          "nmppkpelayanan": "RSU ALLAM MEDICA",
+          "jnspelayanan": "1",
+          "catatan": "-",
+          "diagawal": "",
+          "nmdiagnosaawal": "",
+          "kdpolitujuan": "",
+          "nmpolitujuan": "",
+          "klsrawat": "2",
+          "klsnaik": "",
+          "pembiayaan": "",
+          "pjnaikkelas": "",
+          "lakalantas": "0",
+          "user": "TPPRI",
+          "nomr": "1709081353",
+          "nama_pasien": "SRI NURHIDAYATI",
+          "tanggal_lahir": "1976-04-20",
+          "peserta": "PEGAWAI PEMERINTAH DENGAN PERJANJIAN KERJA",
+          "jkel": "P",
+          "no_kartu": "0002232805386",
+          "tglpulang": null,
+          "asal_rujukan": "1. Faskes 1",
+          "eksekutif": "0. Tidak",
+          "cob": "0. Tidak",
+          "notelep": "081542969332",
+          "katarak": "0. Tidak",
+          "tglkkl": null,
+          "keterangankkl": "",
+          "suplesi": "0. Tidak",
+          "no_sep_suplesi": "",
+          "kdprop": "",
+          "nmprop": "",
+          "kdkab": "",
+          "nmkab": "",
+          "kdkec": "",
+          "nmkec": "",
+          "noskdp": "",
+          "kddpjp": "",
+          "nmdpdjp": "",
+          "tujuankunjungan": "0",
+          "flagprosedur": "",
+          "penunjang": "",
+          "asesmenpelayanan": "",
+          "kddpjplayanan": "",
+          "nmdpjplayanan": ""
+        }
+      ]
+    },
+    "nota_jalan": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "no_nota",
+          "type": "varchar(17)",
+          "nullable": true,
+          "key": "UNI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tanggal",
+          "type": "date",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat"
+      ],
+      "foreign_keys": [
+        "no_rawat"
+      ],
+      "relationships": [
+        "nota_jalan.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2019/01/16/000100",
+          "no_nota": "2019/01/RJ/000001",
+          "tanggal": "2019-01-16",
+          "jam": "10:27:01"
+        },
+        {
+          "no_rawat": "2019/02/19/000158",
+          "no_nota": "2019/02/RJ/000001",
+          "tanggal": "2019-02-19",
+          "jam": "12:53:55"
+        },
+        {
+          "no_rawat": "2019/07/19/000101",
+          "no_nota": "2019/07/RJ/000001",
+          "tanggal": "2019-07-19",
+          "jam": "10:10:19"
+        }
+      ]
+    },
+    "nota_inap": {
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "PRI",
+          "default": "",
+          "extra": ""
+        },
+        {
+          "name": "no_nota",
+          "type": "varchar(17)",
+          "nullable": true,
+          "key": "UNI",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "tanggal",
+          "type": "date",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "jam",
+          "type": "time",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        },
+        {
+          "name": "Uang_Muka",
+          "type": "double",
+          "nullable": true,
+          "key": "MUL",
+          "default": null,
+          "extra": ""
+        }
+      ],
+      "primary_keys": [
+        "no_rawat"
+      ],
+      "foreign_keys": [
+        "no_rawat"
+      ],
+      "relationships": [
+        "nota_inap.no_rawat → reg_periksa.no_rawat"
+      ],
+      "sample_data": [
+        {
+          "no_rawat": "2018/12/30/000020",
+          "no_nota": "2019/01/RI/000001",
+          "tanggal": "2019-01-01",
+          "jam": "11:02:17",
+          "Uang_Muka": 0.0
+        },
+        {
+          "no_rawat": "2019/01/01/000039",
+          "no_nota": "2021/01/RI/000004",
+          "tanggal": "2021-01-09",
+          "jam": "15:02:29",
+          "Uang_Muka": 0.0
+        },
+        {
+          "no_rawat": "2019/03/14/000005",
+          "no_nota": "2019/03/RI/000001",
+          "tanggal": "2019-03-16",
+          "jam": "10:56:05",
+          "Uang_Muka": 0.0
+        }
+      ]
+    }
+  },
+  "relationships": {
+    "direct": [
+      "pasien.kd_pj → penjab.kd_pj",
+      "pasien.kd_kel → kelurahan.kd_kel",
+      "pasien.kd_kec → kecamatan.kd_kec",
+      "pasien.kd_kab → kabupaten.kd_kab",
+      "pasien.perusahaan_pasien → perusahaan_pasien.kode_perusahaan",
+      "pasien.suku_bangsa → suku_bangsa.id",
+      "pasien.bahasa_pasien → bahasa_pasien.id",
+      "pasien.cacat_fisik → cacat_fisik.id",
+      "pasien.kd_prop → propinsi.kd_prop",
+      "dokter.kd_sps → spesialis.kd_sps",
+      "dokter.kd_dokter → pegawai.nik",
+      "reg_periksa.kd_poli → poliklinik.kd_poli",
+      "reg_periksa.kd_dokter → dokter.kd_dokter",
+      "reg_periksa.kd_pj → penjab.kd_pj",
+      "reg_periksa.no_rkm_medis → pasien.no_rkm_medis",
+      "kamar_inap.kd_kamar → kamar.kd_kamar",
+      "kamar_inap.no_rawat → reg_periksa.no_rawat",
+      "kamar.kd_bangsal → bangsal.kd_bangsal",
+      "penyakit.kd_ktg → kategori_penyakit.kd_ktg",
+      "diagnosa_pasien.no_rawat → reg_periksa.no_rawat",
+      "diagnosa_pasien.kd_penyakit → penyakit.kd_penyakit",
+      "rawat_jl_dr.kd_jenis_prw → jns_perawatan.kd_jenis_prw",
+      "rawat_jl_dr.kd_dokter → dokter.kd_dokter",
+      "rawat_jl_dr.no_rawat → reg_periksa.no_rawat",
+      "rawat_inap_dr.kd_dokter → dokter.kd_dokter",
+      "rawat_inap_dr.kd_jenis_prw → jns_perawatan_inap.kd_jenis_prw",
+      "rawat_inap_dr.no_rawat → reg_periksa.no_rawat",
+      "periksa_lab.nip → petugas.nip",
+      "periksa_lab.kd_jenis_prw → jns_perawatan_lab.kd_jenis_prw",
+      "periksa_lab.dokter_perujuk → dokter.kd_dokter",
+      "periksa_lab.kd_dokter → dokter.kd_dokter",
+      "periksa_lab.no_rawat → reg_periksa.no_rawat",
+      "periksa_radiologi.no_rawat → reg_periksa.no_rawat",
+      "periksa_radiologi.nip → petugas.nip",
+      "periksa_radiologi.kd_jenis_prw → jns_perawatan_radiologi.kd_jenis_prw",
+      "periksa_radiologi.kd_dokter → dokter.kd_dokter",
+      "periksa_radiologi.dokter_perujuk → dokter.kd_dokter",
+      "obat_racikan.no_rawat → reg_periksa.no_rawat",
+      "obat_racikan.kd_racik → metode_racik.kd_racik",
+      "resep_dokter.no_resep → resep_obat.no_resep",
+      "resep_dokter.kode_brng → databarang.kode_brng",
+      "operasi.no_rawat → reg_periksa.no_rawat",
+      "operasi.operator1 → dokter.kd_dokter",
+      "operasi.operator2 → dokter.kd_dokter",
+      "operasi.operator3 → dokter.kd_dokter",
+      "operasi.asisten_operator1 → petugas.nip",
+      "operasi.asisten_operator2 → petugas.nip",
+      "operasi.instrumen → petugas.nip",
+      "operasi.dokter_anak → dokter.kd_dokter",
+      "operasi.perawaat_resusitas → petugas.nip",
+      "operasi.dokter_anestesi → dokter.kd_dokter",
+      "operasi.asisten_anestesi → petugas.nip",
+      "operasi.bidan → petugas.nip",
+      "operasi.perawat_luar → petugas.nip",
+      "operasi.kode_paket → paket_operasi.kode_paket",
+      "operasi.bidan2 → petugas.nip",
+      "operasi.bidan3 → petugas.nip",
+      "operasi.omloop → petugas.nip",
+      "operasi.omloop2 → petugas.nip",
+      "operasi.omloop3 → petugas.nip",
+      "operasi.dokter_pjanak → dokter.kd_dokter",
+      "operasi.dokter_umum → dokter.kd_dokter",
+      "operasi.asisten_operator3 → petugas.nip",
+      "operasi.asisten_anestesi2 → petugas.nip",
+      "operasi.omloop4 → petugas.nip",
+      "operasi.omloop5 → petugas.nip",
+      "rujuk.kd_dokter → dokter.kd_dokter",
+      "rujuk.no_rawat → reg_periksa.no_rawat",
+      "bridging_sep.no_rawat → reg_periksa.no_rawat",
+      "nota_jalan.no_rawat → reg_periksa.no_rawat",
+      "nota_inap.no_rawat → reg_periksa.no_rawat"
+    ],
+    "summary": "Healthcare database relationships"
+  },
+  "test_cases": [
+    "How many patients are registered?",
+    "Show me all doctors",
+    "What are the available polyclinics?",
+    "Show recent patient registrations",
+    "Which patients have been diagnosed recently?",
+    "Show lab examination results",
+    "What are the most common diseases?",
+    "Show inpatient room occupancy",
+    "List all prescriptions by doctors",
+    "Show BPJS patient registrations",
+    "What surgeries were performed this month?",
+    "Show radiology examination results",
+    "Which patients have been referred?",
+    "Show billing information for outpatients",
+    "List all medication prescriptions"
+  ],
+  "views": {
+    "pasien_clean": {
+      "definition": "select `p`.`no_rkm_medis` AS `no_rkm_medis`,`p`.`nm_pasien` AS `nm_pasien`,`p`.`no_ktp` AS `no_ktp` from `allammedica`.`pasien` `p` where (`p`.`no_ktp` <> '-')",
+      "updatable": true,
+      "columns": [
+        {
+          "name": "no_rkm_medis",
+          "type": "varchar(15)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "nm_pasien",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_ktp",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        }
+      ]
+    },
+    "view_resume_pasien": {
+      "definition": "select `res`.`no_rawat` AS `no_rawat`,`res`.`kd_dokter` AS `kd_dokter`,`res`.`keluhan_utama` AS `keluhan_utama`,`res`.`diagnosa_utama` AS `diagnosa_utama`,`res`.`kd_diagnosa_utama` AS `kd_diagnosa_utama`,`res`.`diagnosa_sekunder` AS `diagnosa_sekunder`,`res`.`kd_diagnosa_sekunder` AS `kd_diagnosa_sekunder`,`res`.`kondisi_pulang` AS `kondisi_pulang`,`res`.`obat_pulang` AS `obat_pulang`,`reg`.`no_reg` AS `no_reg`,`reg`.`tgl_registrasi` AS `tgl_registrasi`,`reg`.`jam_reg` AS `jam_reg`,`reg`.`no_rkm_medis` AS `no_rkm_medis`,`reg`.`kd_poli` AS `kd_poli`,`reg`.`p_jawab` AS `p_jawab`,`reg`.`almt_pj` AS `almt_pj`,`reg`.`hubunganpj` AS `hubunganpj`,`reg`.`biaya_reg` AS `biaya_reg`,`reg`.`stts` AS `stts`,`reg`.`stts_daftar` AS `stts_daftar`,`reg`.`status_lanjut` AS `status_lanjut`,`reg`.`kd_pj` AS `kd_pj`,`reg`.`umurdaftar` AS `umurdaftar`,`reg`.`status_bayar` AS `status_bayar`,`reg`.`status_poli` AS `status_poli`,`d`.`nm_dokter` AS `nm_dokter`,`d`.`kd_sps` AS `kd_sps`,`d`.`no_ijn_praktek` AS `no_ijn_praktek`,`p`.`nm_pasien` AS `nm_pasien`,`p`.`no_ktp` AS `no_ktp`,`p`.`jk` AS `jk`,`p`.`tgl_lahir` AS `tgl_lahir`,`p`.`gol_darah` AS `gol_darah`,`p`.`pekerjaan` AS `pekerjaan`,`p`.`stts_nikah` AS `stts_nikah`,`p`.`agama` AS `agama`,`p`.`no_tlp` AS `no_tlp` from (((`allammedica`.`resume_pasien` `res` join `allammedica`.`reg_periksa` `reg` on((`res`.`no_rawat` = `reg`.`no_rawat`))) join `allammedica`.`dokter` `d` on((`reg`.`kd_dokter` = `d`.`kd_dokter`))) join `allammedica`.`pasien` `p` on((`reg`.`no_rkm_medis` = `p`.`no_rkm_medis`)))",
+      "updatable": true,
+      "columns": [
+        {
+          "name": "no_rawat",
+          "type": "varchar(17)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_dokter",
+          "type": "varchar(20)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "keluhan_utama",
+          "type": "text",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "diagnosa_utama",
+          "type": "varchar(80)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_diagnosa_utama",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "diagnosa_sekunder",
+          "type": "varchar(80)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_diagnosa_sekunder",
+          "type": "varchar(10)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kondisi_pulang",
+          "type": "enum('Hidup','Meninggal')",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "obat_pulang",
+          "type": "text",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_reg",
+          "type": "varchar(8)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "tgl_registrasi",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "jam_reg",
+          "type": "time",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_rkm_medis",
+          "type": "varchar(15)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_poli",
+          "type": "char(5)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "p_jawab",
+          "type": "varchar(100)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "almt_pj",
+          "type": "varchar(200)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "hubunganpj",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "biaya_reg",
+          "type": "double",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "stts",
+          "type": "enum('Belum','Sudah','Batal','Berkas Diterima','Dirujuk','Meninggal','Dirawat','Pulang Paksa')",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "stts_daftar",
+          "type": "enum('-','Lama','Baru')",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "status_lanjut",
+          "type": "enum('Ralan','Ranap')",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_pj",
+          "type": "char(3)",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "umurdaftar",
+          "type": "int",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "status_bayar",
+          "type": "enum('Sudah Bayar','Belum Bayar')",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "status_poli",
+          "type": "enum('Lama','Baru')",
+          "nullable": false,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "nm_dokter",
+          "type": "varchar(50)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "kd_sps",
+          "type": "char(5)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_ijn_praktek",
+          "type": "varchar(120)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "nm_pasien",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_ktp",
+          "type": "varchar(20)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "jk",
+          "type": "enum('L','P')",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "tgl_lahir",
+          "type": "date",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "gol_darah",
+          "type": "enum('A','B','O','AB','-')",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "pekerjaan",
+          "type": "varchar(60)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "stts_nikah",
+          "type": "enum('BELUM MENIKAH','MENIKAH','JANDA','DUDHA','JOMBLO')",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "agama",
+          "type": "varchar(12)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        },
+        {
+          "name": "no_tlp",
+          "type": "varchar(40)",
+          "nullable": true,
+          "key": "",
+          "default": null
+        }
+      ]
+    }
+  },
+  "complex_relationships": {
+    "one_to_many": [],
+    "many_to_many": [],
+    "indirect_paths": [],
+    "junction_tables": [],
+    "patterns": {
+      "patient_centric": [
+        "pasien",
+        "reg_periksa"
+      ],
+      "doctor_centric": [
+        "dokter",
+        "reg_periksa",
+        "rawat_jl_dr",
+        "rawat_inap_dr",
+        "periksa_lab",
+        "periksa_radiologi",
+        "rujuk"
+      ],
+      "registration_centric": [
+        "reg_periksa",
+        "kamar_inap",
+        "diagnosa_pasien",
+        "rawat_jl_dr",
+        "rawat_inap_dr",
+        "periksa_lab",
+        "periksa_radiologi",
+        "obat_racikan",
+        "operasi",
+        "rujuk",
+        "bridging_sep",
+        "nota_jalan",
+        "nota_inap"
+      ]
+    }
+  },
+  "graph_structure": {
+    "nodes": [
+      {
+        "id": "pasien",
+        "label": "pasien",
+        "type": "table",
+        "columns": 36,
+        "primary_keys": [
+          "no_rkm_medis"
+        ],
+        "category": "patient"
+      },
+      {
+        "id": "dokter",
+        "label": "dokter",
+        "type": "table",
+        "columns": 14,
+        "primary_keys": [
+          "kd_dokter"
+        ],
+        "category": "staff"
+      },
+      {
+        "id": "reg_periksa",
+        "label": "reg_periksa",
+        "type": "table",
+        "columns": 19,
+        "primary_keys": [
+          "no_rawat"
+        ],
+        "category": "clinical"
+      },
+      {
+        "id": "poliklinik",
+        "label": "poliklinik",
+        "type": "table",
+        "columns": 5,
+        "primary_keys": [
+          "kd_poli"
+        ],
+        "category": "infrastructure"
+      },
+      {
+        "id": "penjab",
+        "label": "penjab",
+        "type": "table",
+        "columns": 7,
+        "primary_keys": [
+          "kd_pj"
+        ],
+        "category": "other"
+      },
+      {
+        "id": "kamar_inap",
+        "label": "kamar_inap",
+        "type": "table",
+        "columns": 12,
+        "primary_keys": [
+          "no_rawat",
+          "tgl_masuk",
+          "jam_masuk"
+        ],
+        "category": "infrastructure"
+      },
+      {
+        "id": "bangsal",
+        "label": "bangsal",
+        "type": "table",
+        "columns": 3,
+        "primary_keys": [
+          "kd_bangsal"
+        ],
+        "category": "infrastructure"
+      },
+      {
+        "id": "kamar",
+        "label": "kamar",
+        "type": "table",
+        "columns": 6,
+        "primary_keys": [
+          "kd_kamar"
+        ],
+        "category": "infrastructure"
+      },
+      {
+        "id": "penyakit",
+        "label": "penyakit",
+        "type": "table",
+        "columns": 6,
+        "primary_keys": [
+          "kd_penyakit"
+        ],
+        "category": "clinical"
+      },
+      {
+        "id": "diagnosa_pasien",
+        "label": "diagnosa_pasien",
+        "type": "table",
+        "columns": 5,
+        "primary_keys": [
+          "no_rawat",
+          "kd_penyakit",
+          "status"
+        ],
+        "category": "patient"
+      },
+      {
+        "id": "rawat_jl_dr",
+        "label": "rawat_jl_dr",
+        "type": "table",
+        "columns": 12,
+        "primary_keys": [
+          "no_rawat",
+          "kd_jenis_prw",
+          "kd_dokter",
+          "tgl_perawatan",
+          "jam_rawat"
+        ],
+        "category": "other"
+      },
+      {
+        "id": "rawat_inap_dr",
+        "label": "rawat_inap_dr",
+        "type": "table",
+        "columns": 11,
+        "primary_keys": [
+          "no_rawat",
+          "kd_jenis_prw",
+          "kd_dokter",
+          "tgl_perawatan",
+          "jam_rawat"
+        ],
+        "category": "other"
+      },
+      {
+        "id": "periksa_lab",
+        "label": "periksa_lab",
+        "type": "table",
+        "columns": 17,
+        "primary_keys": [
+          "no_rawat",
+          "kd_jenis_prw",
+          "tgl_periksa",
+          "jam"
+        ],
+        "category": "clinical"
+      },
+      {
+        "id": "periksa_radiologi",
+        "label": "periksa_radiologi",
+        "type": "table",
+        "columns": 24,
+        "primary_keys": [
+          "no_rawat",
+          "kd_jenis_prw",
+          "tgl_periksa",
+          "jam"
+        ],
+        "category": "clinical"
+      },
+      {
+        "id": "obat_racikan",
+        "label": "obat_racikan",
+        "type": "table",
+        "columns": 9,
+        "primary_keys": [
+          "tgl_perawatan",
+          "jam",
+          "no_rawat",
+          "no_racik"
+        ],
+        "category": "pharmacy"
+      },
+      {
+        "id": "resep_dokter",
+        "label": "resep_dokter",
+        "type": "table",
+        "columns": 4,
+        "primary_keys": [],
+        "category": "staff"
+      },
+      {
+        "id": "operasi",
+        "label": "operasi",
+        "type": "table",
+        "columns": 57,
+        "primary_keys": [
+          "no_rawat",
+          "tgl_operasi",
+          "kode_paket"
+        ],
+        "category": "clinical"
+      },
+      {
+        "id": "rujuk",
+        "label": "rujuk",
+        "type": "table",
+        "columns": 10,
+        "primary_keys": [],
+        "category": "other"
+      },
+      {
+        "id": "bridging_sep",
+        "label": "bridging_sep",
+        "type": "table",
+        "columns": 52,
+        "primary_keys": [
+          "no_sep"
+        ],
+        "category": "administrative"
+      },
+      {
+        "id": "nota_jalan",
+        "label": "nota_jalan",
+        "type": "table",
+        "columns": 4,
+        "primary_keys": [
+          "no_rawat"
+        ],
+        "category": "administrative"
+      },
+      {
+        "id": "nota_inap",
+        "label": "nota_inap",
+        "type": "table",
+        "columns": 5,
+        "primary_keys": [
+          "no_rawat"
+        ],
+        "category": "administrative"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_0",
+        "source": "pasien",
+        "target": "penjab",
+        "type": "foreign_key",
+        "relationship": "pasien.kd_pj → penjab.kd_pj"
+      },
+      {
+        "id": "edge_1",
+        "source": "pasien",
+        "target": "kelurahan",
+        "type": "foreign_key",
+        "relationship": "pasien.kd_kel → kelurahan.kd_kel"
+      },
+      {
+        "id": "edge_2",
+        "source": "pasien",
+        "target": "kecamatan",
+        "type": "foreign_key",
+        "relationship": "pasien.kd_kec → kecamatan.kd_kec"
+      },
+      {
+        "id": "edge_3",
+        "source": "pasien",
+        "target": "kabupaten",
+        "type": "foreign_key",
+        "relationship": "pasien.kd_kab → kabupaten.kd_kab"
+      },
+      {
+        "id": "edge_4",
+        "source": "pasien",
+        "target": "perusahaan_pasien",
+        "type": "foreign_key",
+        "relationship": "pasien.perusahaan_pasien → perusahaan_pasien.kode_perusahaan"
+      },
+      {
+        "id": "edge_5",
+        "source": "pasien",
+        "target": "suku_bangsa",
+        "type": "foreign_key",
+        "relationship": "pasien.suku_bangsa → suku_bangsa.id"
+      },
+      {
+        "id": "edge_6",
+        "source": "pasien",
+        "target": "bahasa_pasien",
+        "type": "foreign_key",
+        "relationship": "pasien.bahasa_pasien → bahasa_pasien.id"
+      },
+      {
+        "id": "edge_7",
+        "source": "pasien",
+        "target": "cacat_fisik",
+        "type": "foreign_key",
+        "relationship": "pasien.cacat_fisik → cacat_fisik.id"
+      },
+      {
+        "id": "edge_8",
+        "source": "pasien",
+        "target": "propinsi",
+        "type": "foreign_key",
+        "relationship": "pasien.kd_prop → propinsi.kd_prop"
+      },
+      {
+        "id": "edge_9",
+        "source": "dokter",
+        "target": "spesialis",
+        "type": "foreign_key",
+        "relationship": "dokter.kd_sps → spesialis.kd_sps"
+      },
+      {
+        "id": "edge_10",
+        "source": "dokter",
+        "target": "pegawai",
+        "type": "foreign_key",
+        "relationship": "dokter.kd_dokter → pegawai.nik"
+      },
+      {
+        "id": "edge_11",
+        "source": "reg_periksa",
+        "target": "poliklinik",
+        "type": "foreign_key",
+        "relationship": "reg_periksa.kd_poli → poliklinik.kd_poli"
+      },
+      {
+        "id": "edge_12",
+        "source": "reg_periksa",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "reg_periksa.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_13",
+        "source": "reg_periksa",
+        "target": "penjab",
+        "type": "foreign_key",
+        "relationship": "reg_periksa.kd_pj → penjab.kd_pj"
+      },
+      {
+        "id": "edge_14",
+        "source": "reg_periksa",
+        "target": "pasien",
+        "type": "foreign_key",
+        "relationship": "reg_periksa.no_rkm_medis → pasien.no_rkm_medis"
+      },
+      {
+        "id": "edge_15",
+        "source": "kamar_inap",
+        "target": "kamar",
+        "type": "foreign_key",
+        "relationship": "kamar_inap.kd_kamar → kamar.kd_kamar"
+      },
+      {
+        "id": "edge_16",
+        "source": "kamar_inap",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "kamar_inap.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_17",
+        "source": "kamar",
+        "target": "bangsal",
+        "type": "foreign_key",
+        "relationship": "kamar.kd_bangsal → bangsal.kd_bangsal"
+      },
+      {
+        "id": "edge_18",
+        "source": "penyakit",
+        "target": "kategori_penyakit",
+        "type": "foreign_key",
+        "relationship": "penyakit.kd_ktg → kategori_penyakit.kd_ktg"
+      },
+      {
+        "id": "edge_19",
+        "source": "diagnosa_pasien",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "diagnosa_pasien.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_20",
+        "source": "diagnosa_pasien",
+        "target": "penyakit",
+        "type": "foreign_key",
+        "relationship": "diagnosa_pasien.kd_penyakit → penyakit.kd_penyakit"
+      },
+      {
+        "id": "edge_21",
+        "source": "rawat_jl_dr",
+        "target": "jns_perawatan",
+        "type": "foreign_key",
+        "relationship": "rawat_jl_dr.kd_jenis_prw → jns_perawatan.kd_jenis_prw"
+      },
+      {
+        "id": "edge_22",
+        "source": "rawat_jl_dr",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "rawat_jl_dr.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_23",
+        "source": "rawat_jl_dr",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "rawat_jl_dr.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_24",
+        "source": "rawat_inap_dr",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "rawat_inap_dr.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_25",
+        "source": "rawat_inap_dr",
+        "target": "jns_perawatan_inap",
+        "type": "foreign_key",
+        "relationship": "rawat_inap_dr.kd_jenis_prw → jns_perawatan_inap.kd_jenis_prw"
+      },
+      {
+        "id": "edge_26",
+        "source": "rawat_inap_dr",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "rawat_inap_dr.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_27",
+        "source": "periksa_lab",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "periksa_lab.nip → petugas.nip"
+      },
+      {
+        "id": "edge_28",
+        "source": "periksa_lab",
+        "target": "jns_perawatan_lab",
+        "type": "foreign_key",
+        "relationship": "periksa_lab.kd_jenis_prw → jns_perawatan_lab.kd_jenis_prw"
+      },
+      {
+        "id": "edge_29",
+        "source": "periksa_lab",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "periksa_lab.dokter_perujuk → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_30",
+        "source": "periksa_lab",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "periksa_lab.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_31",
+        "source": "periksa_lab",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "periksa_lab.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_32",
+        "source": "periksa_radiologi",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "periksa_radiologi.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_33",
+        "source": "periksa_radiologi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "periksa_radiologi.nip → petugas.nip"
+      },
+      {
+        "id": "edge_34",
+        "source": "periksa_radiologi",
+        "target": "jns_perawatan_radiologi",
+        "type": "foreign_key",
+        "relationship": "periksa_radiologi.kd_jenis_prw → jns_perawatan_radiologi.kd_jenis_prw"
+      },
+      {
+        "id": "edge_35",
+        "source": "periksa_radiologi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "periksa_radiologi.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_36",
+        "source": "periksa_radiologi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "periksa_radiologi.dokter_perujuk → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_37",
+        "source": "obat_racikan",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "obat_racikan.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_38",
+        "source": "obat_racikan",
+        "target": "metode_racik",
+        "type": "foreign_key",
+        "relationship": "obat_racikan.kd_racik → metode_racik.kd_racik"
+      },
+      {
+        "id": "edge_39",
+        "source": "resep_dokter",
+        "target": "resep_obat",
+        "type": "foreign_key",
+        "relationship": "resep_dokter.no_resep → resep_obat.no_resep"
+      },
+      {
+        "id": "edge_40",
+        "source": "resep_dokter",
+        "target": "databarang",
+        "type": "foreign_key",
+        "relationship": "resep_dokter.kode_brng → databarang.kode_brng"
+      },
+      {
+        "id": "edge_41",
+        "source": "operasi",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "operasi.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_42",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.operator1 → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_43",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.operator2 → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_44",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.operator3 → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_45",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.asisten_operator1 → petugas.nip"
+      },
+      {
+        "id": "edge_46",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.asisten_operator2 → petugas.nip"
+      },
+      {
+        "id": "edge_47",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.instrumen → petugas.nip"
+      },
+      {
+        "id": "edge_48",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.dokter_anak → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_49",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.perawaat_resusitas → petugas.nip"
+      },
+      {
+        "id": "edge_50",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.dokter_anestesi → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_51",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.asisten_anestesi → petugas.nip"
+      },
+      {
+        "id": "edge_52",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.bidan → petugas.nip"
+      },
+      {
+        "id": "edge_53",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.perawat_luar → petugas.nip"
+      },
+      {
+        "id": "edge_54",
+        "source": "operasi",
+        "target": "paket_operasi",
+        "type": "foreign_key",
+        "relationship": "operasi.kode_paket → paket_operasi.kode_paket"
+      },
+      {
+        "id": "edge_55",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.bidan2 → petugas.nip"
+      },
+      {
+        "id": "edge_56",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.bidan3 → petugas.nip"
+      },
+      {
+        "id": "edge_57",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.omloop → petugas.nip"
+      },
+      {
+        "id": "edge_58",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.omloop2 → petugas.nip"
+      },
+      {
+        "id": "edge_59",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.omloop3 → petugas.nip"
+      },
+      {
+        "id": "edge_60",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.dokter_pjanak → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_61",
+        "source": "operasi",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "operasi.dokter_umum → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_62",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.asisten_operator3 → petugas.nip"
+      },
+      {
+        "id": "edge_63",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.asisten_anestesi2 → petugas.nip"
+      },
+      {
+        "id": "edge_64",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.omloop4 → petugas.nip"
+      },
+      {
+        "id": "edge_65",
+        "source": "operasi",
+        "target": "petugas",
+        "type": "foreign_key",
+        "relationship": "operasi.omloop5 → petugas.nip"
+      },
+      {
+        "id": "edge_66",
+        "source": "rujuk",
+        "target": "dokter",
+        "type": "foreign_key",
+        "relationship": "rujuk.kd_dokter → dokter.kd_dokter"
+      },
+      {
+        "id": "edge_67",
+        "source": "rujuk",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "rujuk.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_68",
+        "source": "bridging_sep",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "bridging_sep.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_69",
+        "source": "nota_jalan",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "nota_jalan.no_rawat → reg_periksa.no_rawat"
+      },
+      {
+        "id": "edge_70",
+        "source": "nota_inap",
+        "target": "reg_periksa",
+        "type": "foreign_key",
+        "relationship": "nota_inap.no_rawat → reg_periksa.no_rawat"
+      }
+    ]
+  },
+  "metadata": {
+    "total_tables": 21,
+    "total_views": 2,
+    "total_relationships": 71,
+    "junction_tables": 0,
+    "analysis_timestamp": "2025-01-12"
+  }
+}

@@ -4,12 +4,27 @@ import json
 import os
 import hashlib
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from .server import get_db_config
 from mysql.connector import connect, Error
 import logging
 
+# Initialize logger first
 logger = logging.getLogger(__name__)
+
+# Import our healthcare schema knowledge service
+try:
+    from .schema_knowledge import SchemaKnowledgeService
+except ImportError:
+    logger.warning("SchemaKnowledgeService not available, falling back to basic schema discovery")
+    SchemaKnowledgeService = None
+
+# Import vector knowledge service for healthcare context
+try:
+    from .vector_knowledge_service import VectorKnowledgeService
+except ImportError:
+    logger.warning("VectorKnowledgeService not available")
+    VectorKnowledgeService = None
 
 class QueryIntelligenceService:
     def __init__(self):
@@ -17,7 +32,32 @@ class QueryIntelligenceService:
         self.ollama_url = os.environ.get('OLLAMA_BASE_URL', "http://192.168.1.127:11434")
         self.ollama_model = os.environ.get('OLLAMA_MODEL', "qwen3")
 
-        # Relationship caching system
+        # Healthcare schema knowledge integration
+        self.use_healthcare_context = os.environ.get('USE_HEALTHCARE_CONTEXT', 'true').lower() == 'true'
+        self.schema_knowledge_path = os.environ.get('SCHEMA_KNOWLEDGE_PATH', 'database_knowledge/')
+        self.enable_vector_search = os.environ.get('ENABLE_VECTOR_SEARCH', 'true').lower() == 'true'
+
+        # Initialize vector knowledge service if available (new approach)
+        self.vector_knowledge = None
+        if VectorKnowledgeService and self.enable_vector_search and self.use_healthcare_context:
+            try:
+                self.vector_knowledge = VectorKnowledgeService()
+                logger.info("Healthcare vector knowledge service initialized successfully")
+            except Exception as e:
+                logger.warning(f"Failed to initialize vector knowledge service: {e}")
+                self.vector_knowledge = None
+
+        # Initialize schema knowledge service if available (fallback)
+        self.schema_knowledge = None
+        if SchemaKnowledgeService and self.use_healthcare_context and not self.vector_knowledge:
+            try:
+                self.schema_knowledge = SchemaKnowledgeService(self.schema_knowledge_path)
+                logger.info("Healthcare schema knowledge service initialized successfully (fallback mode)")
+            except Exception as e:
+                logger.warning(f"Failed to initialize schema knowledge service: {e}")
+                self.schema_knowledge = None
+
+        # Relationship caching system (fallback for basic mode)
         self.enable_cache = os.environ.get('ENABLE_RELATIONSHIP_CACHE', 'true').lower() == 'true'
         self.cache_ttl_minutes = int(os.environ.get('CACHE_TTL_MINUTES', '30'))
         self.max_cached_relationships = int(os.environ.get('MAX_CACHED_RELATIONSHIPS', '100'))
@@ -28,7 +68,15 @@ class QueryIntelligenceService:
         self._schema_hash_cache = None
         self._last_schema_check = 0
 
-        logger.info(f"QueryIntelligenceService initialized with caching {'enabled' if self.enable_cache else 'disabled'}")
+        # Determine mode based on available services
+        if self.vector_knowledge:
+            mode = "healthcare-aware (vector search)"
+        elif self.schema_knowledge:
+            mode = "healthcare-aware (full context)"
+        else:
+            mode = "basic"
+
+        logger.info(f"QueryIntelligenceService initialized in {mode} mode with caching {'enabled' if self.enable_cache else 'disabled'}")
 
     async def answer_database_question(self, question: str, user_context: dict = None) -> Dict[str, Any]:
         """
@@ -37,10 +85,10 @@ class QueryIntelligenceService:
         try:
             logger.info(f"Processing database question: {question}")
 
-            # 1. Get complete database context (with caching)
-            schema_context = await self._get_complete_schema_context_cached()
+            # 1. Get healthcare-aware database context
+            schema_context = await self._get_schema_context(question=question)
 
-            # 2. Analyze question for multi-table requirements
+            # 2. Analyze question for multi-table requirements (enhanced with healthcare knowledge)
             query_plan = self._analyze_query_requirements(question, schema_context)
             logger.info(f"Query plan: {query_plan}")
 
@@ -61,6 +109,26 @@ class QueryIntelligenceService:
             query_result = await self._execute_sql_safely(sql_query)
 
             # 7. Format response
+            # Healthcare-aware query validation and enhancement
+            tables_accessed = self._extract_tables_from_sql(sql_query)
+            validation_result = None
+            suggestions = []
+
+            # Use vector knowledge for enhanced validation if available
+            if self.vector_knowledge and question:
+                try:
+                    related_tables = await self.vector_knowledge.get_related_tables(question)
+                    if related_tables:
+                        suggestions = [f"Consider querying related tables: {', '.join(related_tables[:3])}"]
+                except Exception as e:
+                    logger.warning(f"Failed to get vector-based suggestions: {e}")
+
+            # Fallback to schema knowledge validation
+            elif self.schema_knowledge:
+                validation_result = self.schema_knowledge.validate_healthcare_query(sql_query, tables_accessed)
+                if tables_accessed:
+                    suggestions = self.schema_knowledge.suggest_related_queries(tables_accessed[0])
+
             return {
                 "success": True,
                 "question": question,
@@ -70,10 +138,12 @@ class QueryIntelligenceService:
                 "query_plan": query_plan,
                 "metadata": {
                     "rows_returned": self._count_rows(query_result),
-                    "tables_accessed": self._extract_tables_from_sql(sql_query),
+                    "tables_accessed": tables_accessed,
                     "query_type": self._classify_query_type(sql_query),
                     "cache_used": self.enable_cache,
-                    "complexity": query_plan['complexity']
+                    "complexity": query_plan['complexity'],
+                    "healthcare_validation": validation_result,
+                    "related_suggestions": suggestions[:3] if suggestions else []  # Limit to 3 suggestions
                 }
             }
 
@@ -93,8 +163,100 @@ class QueryIntelligenceService:
                 "formatted_response": self._format_guidance_response(question, guidance, error_message)
             }
 
+    async def _get_schema_context(self, tables: List[str] = None, question: str = None) -> str:
+        """Get schema context - vector search if available, otherwise healthcare-aware or basic"""
+        if self.vector_knowledge:
+            return await self._get_vector_schema_context(question)
+        elif self.schema_knowledge:
+            return await self._get_healthcare_schema_context(tables, question)
+        else:
+            return await self._get_complete_schema_context_cached()
+
+    async def _get_vector_schema_context(self, question: str) -> str:
+        """Get healthcare context using vector search (optimal approach)"""
+        try:
+            if not self.vector_knowledge.initialized:
+                await self.vector_knowledge.initialize()
+                # Load healthcare knowledge on first use
+                await self.vector_knowledge.load_healthcare_knowledge(self.schema_knowledge_path)
+
+            # Get focused context based on question
+            context = await self.vector_knowledge.build_context_from_search(question, max_context_length=1500)
+            logger.info("Built vector-based healthcare context")
+            logger.debug(f"Vector context: {context[:800]}...")
+            return context
+
+        except Exception as e:
+            logger.warning(f"Failed to build vector context: {e}, falling back to basic context")
+            return await self._get_complete_schema_context_cached()
+
+    async def _get_healthcare_schema_context(self, tables: List[str] = None, question: str = None) -> str:
+        """Get healthcare-aware schema context using our knowledge service"""
+        try:
+            # If no specific tables provided, analyze question to determine relevant tables
+            if not tables and question:
+                tables = await self._identify_relevant_tables(question)
+
+            # Build comprehensive healthcare context
+            context = await self.schema_knowledge.build_healthcare_context(tables, question)
+            logger.info(f"Built healthcare context for tables: {tables}")
+            return context
+        except Exception as e:
+            logger.warning(f"Failed to build healthcare context: {e}, falling back to basic context")
+            return await self._get_complete_schema_context_cached()
+
+    async def _identify_relevant_tables(self, question: str) -> List[str]:
+        """Identify relevant tables from the question using healthcare knowledge"""
+        # Use vector knowledge for table identification if available
+        if self.vector_knowledge:
+            try:
+                if not self.vector_knowledge.initialized:
+                    await self.vector_knowledge.initialize()
+                return await self.vector_knowledge.get_related_tables(question)
+            except Exception as e:
+                logger.warning(f"Failed to use vector knowledge for table identification: {e}")
+
+        # Fallback to schema knowledge or basic approach
+        if not self.schema_knowledge:
+            return []
+
+        question_lower = question.lower()
+        relevant_tables = set()
+
+        # Check for explicit table mentions or healthcare domain terms
+        healthcare_terms = {
+            'patient': ['pasien'],
+            'doctor': ['dokter'],
+            'visit': ['reg_periksa'],
+            'diagnosis': ['diagnosa_pasien', 'penyakit'],
+            'treatment': ['rawat_jl_dr', 'rawat_inap_dr'],
+            'lab': ['periksa_lab'],
+            'radiology': ['periksa_radiologi'],
+            'surgery': ['operasi'],
+            'medication': ['resep_dokter', 'obat_racikan'],
+            'billing': ['nota_jalan', 'nota_inap'],
+            'insurance': ['bridging_sep', 'penjab'],
+            'room': ['kamar_inap', 'kamar', 'bangsal']
+        }
+
+        # Find relevant tables based on question content
+        for domain, tables in healthcare_terms.items():
+            if domain in question_lower or any(table in question_lower for table in tables):
+                relevant_tables.update(tables)
+
+        # If specific table names are mentioned, add them
+        for table_name in self.schema_knowledge.table_info.keys():
+            if table_name in question_lower:
+                relevant_tables.add(table_name)
+
+        # If no specific tables identified, provide core healthcare tables
+        if not relevant_tables:
+            relevant_tables = {'pasien', 'reg_periksa', 'dokter', 'diagnosa_pasien'}
+
+        return list(relevant_tables)
+
     async def _get_complete_schema_context_cached(self) -> str:
-        """Get comprehensive database schema information with caching"""
+        """Get comprehensive database schema information with caching (fallback method)"""
         config = get_db_config()
 
         with connect(**config) as conn:
@@ -316,52 +478,61 @@ class QueryIntelligenceService:
     # Import remaining methods from original file
     async def _generate_sql_with_ollama(self, question: str, schema_context: str) -> str:
         """Generate SQL using remote Ollama service"""
-        sql_prompt_template = os.environ.get('OLLAMA_SQL_SYSTEM_PROMPT',
-            """You are a MySQL/TiDB SQL expert specializing in complex multi-table queries. Convert natural language to accurate SQL.
+        env_prompt = os.environ.get('OLLAMA_SQL_SYSTEM_PROMPT')
+        logger.debug(f"Environment prompt loaded: {env_prompt is not None}")
+        logger.debug(f"Environment prompt length: {len(env_prompt) if env_prompt else 0}")
+
+        sql_prompt_template = env_prompt or """You are an expert MySQL query generator. Convert the question to a valid SQL query.
 
 DATABASE SCHEMA:
 {schema_context}
 
 CRITICAL RULES:
-- Only SELECT, SHOW, DESCRIBE queries (READ-ONLY)
-- Never INSERT, UPDATE, DELETE, DROP, ALTER
-- Use exact table and column names from schema above
-- Include LIMIT clause (max 100 rows unless specifically requested)
-- Always use proper JOIN syntax for multi-table queries
+1. ONLY generate SELECT, SHOW, or DESCRIBE queries (READ-ONLY)
+2. NEVER use INSERT, UPDATE, DELETE, DROP, ALTER or any write operations
+3. Use EXACTLY the table names from the schema above
+4. Always include LIMIT clause (default 100)
+5. For multi-table queries, ALWAYS use proper JOIN syntax with FROM clause
 
-MULTI-TABLE QUERY STRATEGY:
-1. Identify ALL tables mentioned or implied in the question
-2. Use the "MULTI-TABLE JOIN PATTERNS" section above to find correct join paths
-3. For 3+ table queries, use the provided join examples as templates
-4. Always specify the full table.column format for ambiguous columns
-5. Use appropriate JOIN types (INNER JOIN is default)
+HEALTHCARE DATABASE PATTERNS:
+For questions about "doctors with patient visits":
+SELECT d.nm_dokter, COUNT(r.no_rawat) as total_visits
+FROM dokter d
+JOIN reg_periksa r ON d.kd_dokter = r.kd_dokter
+GROUP BY d.kd_dokter, d.nm_dokter
+LIMIT 50;
 
-MULTI-TABLE EXAMPLES:
-- "Sales by user and product" → Use user-sales-product join path from patterns above
-- "Orders with customer details" → JOIN orders with customers table
-- "Product sales with category info" → JOIN products, sales, categories using proper foreign keys
-- "User activity across projects" → Use junction tables if available
+For questions about "patients with doctors":
+SELECT p.nm_pasien, d.nm_dokter
+FROM pasien p
+JOIN reg_periksa r ON p.no_rkm_medis = r.no_rkm_medis
+JOIN dokter d ON r.kd_dokter = d.kd_dokter
+LIMIT 50;
 
-SINGLE TABLE EXAMPLES:
-- "How many users?" → "SELECT COUNT(*) FROM users"
-- "Recent sales" → "SELECT * FROM sales ORDER BY date DESC LIMIT 20"
-- "Top products" → "SELECT product, COUNT(*) as sales_count FROM sales GROUP BY product ORDER BY sales_count DESC LIMIT 10"
+IMPORTANT: Always use complete FROM clause with JOIN statements when using table aliases.
 
-AGGREGATION WITH JOINS:
-- Always use proper GROUP BY when joining tables with aggregation
-- Use table aliases for complex queries: SELECT u.name, COUNT(s.id) FROM users u JOIN sales s ON u.id = s.user_id GROUP BY u.id
-- Include meaningful column names in SELECT
+QUESTION: {question}
 
-USER QUESTION: {question}
-
-Analyze the question for multi-table requirements, then generate ONLY the SQL query:""")
+Generate ONLY the SQL query:"""
 
         sql_prompt = sql_prompt_template.format(
             schema_context=schema_context,
             question=question
         )
 
-        async with httpx.AsyncClient(timeout=30) as client:
+        # Calculate timeout based on context size
+        context_length = len(sql_prompt)
+        if context_length > 3000:
+            timeout = 60  # Large context needs more time
+        elif context_length > 1500:
+            timeout = 45  # Medium context
+        else:
+            timeout = 30  # Small context
+
+        logger.info(f"Ollama request: context length={context_length}, timeout={timeout}s")
+        logger.debug(f"SQL prompt sent to Ollama: {sql_prompt[:500]}...")  # First 500 chars for debugging
+
+        async with httpx.AsyncClient(timeout=timeout) as client:
             try:
                 response = await client.post(f"{self.ollama_url}/api/generate", json={
                     "model": self.ollama_model,
@@ -377,16 +548,23 @@ Analyze the question for multi-table requirements, then generate ONLY the SQL qu
                     raise Exception(f"Ollama request failed with status {response.status_code}")
 
                 result = response.json()
-                sql_query = result.get("response", "").strip()
-                sql_query = self._clean_sql_response(sql_query)
+                raw_response = result.get("response", "").strip()
+                logger.debug(f"Raw Ollama response: {raw_response}")
+                sql_query = self._clean_sql_response(raw_response)
 
                 if not sql_query:
                     raise Exception("Empty SQL query generated by Ollama")
 
                 return sql_query
 
+            except httpx.TimeoutException:
+                logger.error(f"Ollama timeout after {timeout}s, context length: {context_length}")
+                raise Exception(f"Ollama timeout after {timeout}s - try a simpler query")
+            except httpx.HTTPStatusError as e:
+                logger.error(f"Ollama HTTP error {e.response.status_code}: {e.response.text}")
+                raise Exception(f"Ollama HTTP error {e.response.status_code}")
             except Exception as e:
-                logger.error(f"Failed to generate SQL with Ollama: {str(e)}")
+                logger.error(f"Failed to generate SQL with Ollama: {str(e)} (type: {type(e).__name__})")
                 raise Exception(f"Failed to generate SQL with Ollama: {str(e)}")
 
     def _clean_sql_response(self, sql_response: str) -> str:
@@ -916,8 +1094,22 @@ Analyze the question for multi-table requirements, then generate ONLY the SQL qu
             if table.lower() in question_lower:
                 mentioned_tables.append(table)
 
-        # Detect entity relationships in question
+        # Detect entity relationships in question (enhanced with healthcare)
         relationship_indicators = []
+
+        # Healthcare-specific relationships
+        if any(keyword in question_lower for keyword in ['patient', 'pasien']):
+            relationship_indicators.append('patient_related')
+        if any(keyword in question_lower for keyword in ['doctor', 'dokter', 'physician']):
+            relationship_indicators.append('doctor_related')
+        if any(keyword in question_lower for keyword in ['visit', 'periksa', 'appointment', 'registration']):
+            relationship_indicators.append('visit_related')
+        if any(keyword in question_lower for keyword in ['diagnosis', 'diagnosa', 'disease']):
+            relationship_indicators.append('diagnosis_related')
+        if any(keyword in question_lower for keyword in ['prescription', 'medication', 'obat', 'resep']):
+            relationship_indicators.append('medication_related')
+
+        # Original generic relationships
         if any(keyword in question_lower for keyword in ['user', 'customer', 'owner']):
             relationship_indicators.append('user_related')
         if any(keyword in question_lower for keyword in ['product', 'item', 'goods']):
@@ -935,11 +1127,21 @@ Analyze the question for multi-table requirements, then generate ONLY the SQL qu
             requires_multiple_tables = True
             complexity = 'complex'
         elif len(relationship_indicators) >= 2:
+            # Healthcare relationships that clearly need multiple tables
             requires_multiple_tables = True
             complexity = 'complex'
         elif any(keyword in question_lower for keyword in multi_table_keywords):
             requires_multiple_tables = True
             complexity = 'moderate'
+        # Special healthcare cases that always need JOINs
+        elif ('doctor' in question_lower or 'dokter' in question_lower) and \
+             ('patient' in question_lower or 'visit' in question_lower or 'pasien' in question_lower):
+            requires_multiple_tables = True
+            complexity = 'complex'
+        elif ('patient' in question_lower or 'pasien' in question_lower) and \
+             ('diagnosis' in question_lower or 'diagnosa' in question_lower):
+            requires_multiple_tables = True
+            complexity = 'complex'
         elif any(phrase in question_lower for phrase in ['total', 'sum', 'count', 'average', 'max', 'min']) and \
              any(phrase in question_lower for phrase in ['by', 'per', 'for each', 'group']):
             # Aggregation queries might need joins

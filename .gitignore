@@ -19,6 +19,18 @@ Scripts/
 uv.lock
 .env
 
+# Temporary files and cache
+temp/
+*.tmp
+*.log
+
+# Test results and artifacts
+test_results.json
+*.test.json
+
+# Vector database cache
+*.vector_cache
+
 # IDE settings (optional)
 .vscode/
 .idea/

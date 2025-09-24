@@ -1,0 +1,150 @@
+{
+  "database": "allammedica",
+  "analysis_date": "2025-01-12",
+  "summary": {
+    "total_tables": 1007,
+    "core_tables_analyzed": 21,
+    "total_relationships": 71,
+    "views": 2,
+    "junction_tables": 0,
+    "many_to_many": 0
+  },
+  "key_relationships": {
+    "patient_centric": {
+      "hub_table": "pasien",
+      "primary_key": "no_rkm_medis",
+      "connected_tables": [
+        "reg_periksa",
+        "diagnosa_pasien",
+        "rawat_jl_dr",
+        "rawat_inap_dr",
+        "periksa_lab",
+        "periksa_radiologi",
+        "operasi",
+        "rujuk",
+        "nota_jalan",
+        "nota_inap"
+      ]
+    },
+    "registration_centric": {
+      "hub_table": "reg_periksa",
+      "primary_key": "no_rawat",
+      "connected_tables": [
+        "pasien",
+        "dokter",
+        "poliklinik",
+        "penjab",
+        "diagnosa_pasien",
+        "rawat_jl_dr",
+        "rawat_inap_dr",
+        "periksa_lab",
+        "periksa_radiologi",
+        "operasi"
+      ]
+    }
+  },
+  "healthcare_workflows": [
+    {
+      "name": "Patient Registration Flow",
+      "path": "pasien → reg_periksa → dokter → poliklinik",
+      "description": "Patient registration and assignment to doctor/clinic"
+    },
+    {
+      "name": "Clinical Diagnosis Flow",
+      "path": "reg_periksa → diagnosa_pasien → penyakit",
+      "description": "Diagnosis assignment and disease classification"
+    },
+    {
+      "name": "Treatment Flow",
+      "path": "reg_periksa → rawat_jl_dr/rawat_inap_dr → dokter",
+      "description": "Outpatient/inpatient treatment by doctors"
+    },
+    {
+      "name": "Diagnostic Flow",
+      "path": "reg_periksa → periksa_lab/periksa_radiologi",
+      "description": "Laboratory and radiology examinations"
+    },
+    {
+      "name": "Surgical Flow",
+      "path": "reg_periksa → operasi → dokter (multiple roles)",
+      "description": "Surgical procedures with multiple staff roles"
+    },
+    {
+      "name": "Pharmacy Flow",
+      "path": "reg_periksa → resep_dokter → obat_racikan",
+      "description": "Prescription and medication dispensing"
+    },
+    {
+      "name": "Billing Flow",
+      "path": "reg_periksa → nota_jalan/nota_inap",
+      "description": "Billing for outpatient/inpatient services"
+    },
+    {
+      "name": "Insurance Integration",
+      "path": "reg_periksa → bridging_sep (BPJS)",
+      "description": "Insurance claim processing and integration"
+    }
+  ],
+  "table_categories": {
+    "patient": ["pasien"],
+    "clinical": ["diagnosa_pasien", "penyakit", "operasi", "periksa_lab", "periksa_radiologi"],
+    "administrative": ["reg_periksa", "nota_jalan", "nota_inap", "bridging_sep"],
+    "staff": ["dokter"],
+    "infrastructure": ["kamar_inap", "bangsal", "kamar", "poliklinik"],
+    "pharmacy": ["obat_racikan", "resep_dokter"],
+    "billing": ["nota_jalan", "nota_inap", "bridging_sep"],
+    "reference": ["penjab", "penyakit"],
+    "external": ["rujuk", "bridging_sep"]
+  },
+  "query_patterns": {
+    "patient_history": {
+      "description": "Get complete patient medical history",
+      "tables": ["pasien", "reg_periksa", "diagnosa_pasien", "rawat_jl_dr", "rawat_inap_dr", "periksa_lab", "periksa_radiologi", "operasi"],
+      "join_path": "pasien.no_rkm_medis = reg_periksa.no_rkm_medis"
+    },
+    "doctor_workload": {
+      "description": "Analyze doctor patient load and procedures",
+      "tables": ["dokter", "reg_periksa", "rawat_jl_dr", "rawat_inap_dr", "operasi"],
+      "join_path": "dokter.kd_dokter = reg_periksa.kd_dokter"
+    },
+    "department_analytics": {
+      "description": "Department-wise patient statistics",
+      "tables": ["poliklinik", "reg_periksa", "rawat_jl_dr", "diagnosa_pasien"],
+      "join_path": "poliklinik.kd_poli = reg_periksa.kd_poli"
+    },
+    "billing_analysis": {
+      "description": "Financial analysis and billing patterns",
+      "tables": ["reg_periksa", "nota_jalan", "nota_inap", "penjab", "bridging_sep"],
+      "join_path": "reg_periksa.no_rawat = nota_jalan.no_rawat"
+    }
+  },
+  "complex_tables": {
+    "operasi": {
+      "columns": 57,
+      "foreign_keys": 25,
+      "complexity_note": "Most complex table with multiple staff roles and procedure details"
+    },
+    "bridging_sep": {
+      "columns": 52,
+      "foreign_keys": 1,
+      "complexity_note": "BPJS insurance integration with extensive claim data"
+    },
+    "pasien": {
+      "columns": 36,
+      "foreign_keys": 9,
+      "complexity_note": "Central patient entity with comprehensive demographics"
+    }
+  },
+  "views": {
+    "pasien_clean": {
+      "purpose": "Cleaned patient data for reporting",
+      "base_table": "pasien",
+      "key_columns": ["no_rkm_medis", "nm_pasien", "no_ktp"]
+    },
+    "view_resume_pasien": {
+      "purpose": "Patient clinical summary and resume",
+      "base_table": "resume_pasien",
+      "key_columns": ["no_rawat", "kd_dokter", "keluhan_utama"]
+    }
+  }
+}
