@@ -81,8 +81,8 @@ Ensure your `.env` file has these settings:
 
 ```env
 # MongoDB Atlas Connection
-MONGO_DB_URI=mongodb+srv://kedatatechnology:r8ecNTgjRRYPZOHP@cluster0.4yrxnsk.mongodb.net/
-MONGO_DB_NAME=loom4-db
+MONGO_DB_URI=""
+MONGO_DB_NAME=""
 
 # Vector Search Configuration
 ENABLE_VECTOR_SEARCH=true
