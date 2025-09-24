@@ -478,26 +478,88 @@ class VectorKnowledgeService:
         except:
             return 0.0
 
-    async def build_context_from_search(self, question: str, max_context_length: int = 1000) -> str:
-        """Build healthcare context from vector search results"""
-        relevant_docs = await self.search_relevant_knowledge(question)
+    async def build_context_from_search(self, question: str, max_context_length: int = 1500) -> str:
+        """
+        Build focused database context from vector search results
+        Implements proper flow: question -> vector search -> schema/views/relations -> focused context
+        """
+        # Step 2: Query vector database for schema, views, and relations
+        relevant_docs = await self.search_relevant_knowledge(question, limit=20)
 
         if not relevant_docs:
-            return "No specific healthcare knowledge found for this query."
+            logger.warning(f"No vector knowledge found for question: {question}")
+            return self._build_fallback_context()
 
-        context = "# Relevant Healthcare Database Knowledge:\n\n"
-        current_length = len(context)
+        # Organize results by type for structured context
+        schemas = []
+        relationships = []
+        examples = []
+        workflows = []
 
         for doc in relevant_docs:
-            doc_content = f"## {doc.get('type', 'knowledge').title()}\n{doc.get('content', '')}\n\n"
+            doc_type = doc.get('type', 'unknown')
+            content = doc.get('content', '')
+            metadata = doc.get('metadata', {})
 
-            if current_length + len(doc_content) > max_context_length:
-                break
+            if doc_type == 'table_schema':
+                schemas.append({'content': content, 'tables': metadata.get('tables', [])})
+            elif doc_type == 'relationship':
+                relationships.append({'content': content, 'metadata': metadata})
+            elif doc_type == 'example':
+                examples.append({'content': content, 'metadata': metadata})
+            elif doc_type == 'workflow':
+                workflows.append({'content': content, 'metadata': metadata})
 
-            context += doc_content
-            current_length += len(doc_content)
+        # Build focused context with exact schema information
+        context_parts = []
 
-        return context
+        # 1. Relevant table schemas with exact column information
+        if schemas:
+            context_parts.append("=== RELEVANT TABLE SCHEMAS ===")
+            for schema in schemas[:5]:  # Limit to top 5 most relevant
+                context_parts.append(schema['content'])
+                context_parts.append("")
+
+        # 2. Table relationships and JOIN patterns
+        if relationships:
+            context_parts.append("=== TABLE RELATIONSHIPS ===")
+            for rel in relationships[:3]:  # Top 3 relationships
+                context_parts.append(rel['content'])
+                context_parts.append("")
+
+        # 3. Query examples for similar questions
+        if examples:
+            context_parts.append("=== SIMILAR QUERY EXAMPLES ===")
+            for example in examples[:2]:  # Top 2 examples
+                context_parts.append(example['content'])
+                context_parts.append("")
+
+        # 4. Healthcare workflows if relevant
+        if workflows and any(keyword in question.lower() for keyword in ['diagnos', 'patient', 'doctor', 'visit']):
+            context_parts.append("=== HEALTHCARE WORKFLOWS ===")
+            for workflow in workflows[:1]:  # Just 1 workflow
+                context_parts.append(workflow['content'])
+                context_parts.append("")
+
+        final_context = "\n".join(context_parts)
+
+        # Trim to max length if needed
+        if len(final_context) > max_context_length:
+            final_context = final_context[:max_context_length] + "..."
+
+        logger.info(f"Built vector context: {len(schemas)} schemas, {len(relationships)} relationships, {len(examples)} examples")
+        return final_context
+
+    def _build_fallback_context(self) -> str:
+        """Build basic context when no vector results found"""
+        return """=== BASIC DATABASE CONTEXT ===
+Please generate SQL using only the table names and column names provided in the database schema.
+Use full table names (no aliases) and ensure all referenced tables and columns exist.
+For healthcare queries, common relationships:
+- pasien (patients) connects to reg_periksa (registrations) via no_rkm_medis
+- reg_periksa connects to dokter (doctors) via kd_dokter
+- reg_periksa connects to diagnosa_pasien (diagnoses) via no_rawat
+"""
 
     async def get_related_tables(self, question: str) -> List[str]:
         """Get tables related to the user question based on vector search"""

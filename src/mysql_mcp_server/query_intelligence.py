@@ -4,10 +4,19 @@ import json
 import os
 import hashlib
 import time
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 from .server import get_db_config
 from mysql.connector import connect, Error
 import logging
+
+# Import AWS-inspired validation components
+try:
+    from .query_validation import HealthcareQueryValidator, QuerySelfCorrection, ValidationLevel
+except ImportError:
+    # Fallback if validation module isn't available
+    HealthcareQueryValidator = None
+    QuerySelfCorrection = None
+    ValidationLevel = None
 
 # Initialize logger first
 logger = logging.getLogger(__name__)
@@ -68,13 +77,29 @@ class QueryIntelligenceService:
         self._schema_hash_cache = None
         self._last_schema_check = 0
 
+        # Initialize AWS-inspired validation system (local-only)
+        self.enable_validation = os.environ.get('ENABLE_QUERY_VALIDATION', 'true').lower() == 'true'
+        self.query_validator = None
+        self.query_self_correction = None
+
+        if HealthcareQueryValidator and self.enable_validation:
+            try:
+                self.query_validator = HealthcareQueryValidator()
+                self.query_self_correction = QuerySelfCorrection(self.query_validator)
+                logger.info("AWS-inspired healthcare query validation system initialized (local)")
+            except Exception as e:
+                logger.warning(f"Failed to initialize query validation: {e}")
+                self.query_validator = None
+                self.query_self_correction = None
+
         # Determine mode based on available services
+        validation_status = " + validation" if self.query_validator else ""
         if self.vector_knowledge:
-            mode = "healthcare-aware (vector search)"
+            mode = f"healthcare-aware (vector search){validation_status}"
         elif self.schema_knowledge:
-            mode = "healthcare-aware (full context)"
+            mode = f"healthcare-aware (full context){validation_status}"
         else:
-            mode = "basic"
+            mode = f"basic{validation_status}"
 
         logger.info(f"QueryIntelligenceService initialized in {mode} mode with caching {'enabled' if self.enable_cache else 'disabled'}")
 
@@ -101,6 +126,25 @@ class QueryIntelligenceService:
             # 4. Generate SQL using remote Ollama with enhanced context
             sql_query = await self._generate_sql_with_ollama(question, enhanced_context)
             logger.info(f"Generated SQL: {sql_query}")
+
+            # 4.5. AWS-Inspired Multi-Stage Validation & Self-Correction (Local)
+            validation_results = []
+            if self.query_validator and self.query_self_correction:
+                try:
+                    # Apply AWS-inspired self-correction
+                    corrected_sql, validation_results = self.query_self_correction.auto_correct_query(sql_query, question)
+
+                    if corrected_sql != sql_query:
+                        logger.info(f"Query auto-corrected. Original length: {len(sql_query)}, Corrected length: {len(corrected_sql)}")
+                        sql_query = corrected_sql
+
+                    # Log validation insights
+                    critical_issues = [r for r in validation_results if r.level.value == 'critical']
+                    if critical_issues:
+                        logger.warning(f"Critical validation issues detected: {len(critical_issues)}")
+
+                except Exception as e:
+                    logger.warning(f"Validation/correction failed: {e}")
 
             # 5. Validate query safety
             self._validate_query_safety(sql_query)
@@ -482,7 +526,7 @@ class QueryIntelligenceService:
         logger.debug(f"Environment prompt loaded: {env_prompt is not None}")
         logger.debug(f"Environment prompt length: {len(env_prompt) if env_prompt else 0}")
 
-        sql_prompt_template = env_prompt or """You are an expert MySQL query generator. Convert the question to a valid SQL query.
+        sql_prompt_template = env_prompt or """You are an expert MySQL query generator. Convert the question to a valid SQL query using ONLY the database schema provided below.
 
 DATABASE SCHEMA:
 {schema_context}
@@ -490,30 +534,31 @@ DATABASE SCHEMA:
 CRITICAL RULES:
 1. ONLY generate SELECT, SHOW, or DESCRIBE queries (READ-ONLY)
 2. NEVER use INSERT, UPDATE, DELETE, DROP, ALTER or any write operations
-3. Use EXACTLY the table names from the schema above
-4. Always include LIMIT clause (default 100)
-5. For multi-table queries, ALWAYS use proper JOIN syntax with FROM clause
+3. Use EXACTLY the table names and column names from the schema above
+4. Use EXACTLY the column names shown in the schema - do not guess or invent column names
+5. NEVER use table aliases (like d, p, r) - always use full table names
+6. Always include LIMIT clause (default 100)
+7. Only reference tables and columns that exist in the provided schema
 
-HEALTHCARE DATABASE PATTERNS:
-For questions about "doctors with patient visits":
-SELECT d.nm_dokter, COUNT(r.no_rawat) as total_visits
-FROM dokter d
-JOIN reg_periksa r ON d.kd_dokter = r.kd_dokter
-GROUP BY d.kd_dokter, d.nm_dokter
-LIMIT 50;
+STRICT SCHEMA ADHERENCE:
+- Look at the "Available tables" list in the schema
+- Look at the column names under each table description
+- Use the exact spelling and case of table names and column names
+- If a table or column doesn't exist in the schema, do not use it
 
-For questions about "patients with doctors":
-SELECT p.nm_pasien, d.nm_dokter
-FROM pasien p
-JOIN reg_periksa r ON p.no_rkm_medis = r.no_rkm_medis
-JOIN dokter d ON r.kd_dokter = d.kd_dokter
-LIMIT 50;
+EXAMPLES USING ACTUAL SCHEMA:
+If schema shows "Table: dokter" with columns "kd_dokter, nm_dokter":
+✅ CORRECT: SELECT dokter.nm_dokter FROM dokter LIMIT 10
+❌ WRONG: SELECT d.nm_dokter FROM dokter d LIMIT 10
+❌ WRONG: SELECT dokter.nama_dokter FROM dokter LIMIT 10 (column doesn't exist)
 
-IMPORTANT: Always use complete FROM clause with JOIN statements when using table aliases.
+If schema shows "Table: pasien" and "Table: reg_periksa":
+✅ CORRECT: SELECT pasien.nm_pasien FROM pasien JOIN reg_periksa ON pasien.no_rkm_medis = reg_periksa.no_rkm_medis LIMIT 10
+❌ WRONG: SELECT p.nm_pasien FROM pasien p JOIN reg_periksa r ON p.no_rkm_medis = r.no_rkm_medis LIMIT 10
 
 QUESTION: {question}
 
-Generate ONLY the SQL query:"""
+Generate ONLY the SQL query using exact table names and column names from the schema above:"""
 
         sql_prompt = sql_prompt_template.format(
             schema_context=schema_context,

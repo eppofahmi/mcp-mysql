@@ -177,6 +177,320 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
+## 🌐 MCP Streamable HTTP Mode (Recommended for External Apps)
+
+### Overview
+
+The MCP Streamable HTTP transport provides a network-accessible JSON-RPC 2.0 API that can be consumed by any application, not just Claude Desktop. This is the recommended approach for integrating with external applications, microservices, or web/mobile apps.
+
+### Why Use Streamable HTTP?
+
+| Feature | stdio (Claude Desktop) | Streamable HTTP (External Apps) |
+|---------|------------------------|----------------------------------|
+| **Network Access** | Local only | Any app, anywhere |
+| **Protocol** | JSON-RPC 2.0 | JSON-RPC 2.0 |
+| **Streaming** | No | SSE for real-time updates |
+| **Session Management** | No | Resumable sessions |
+| **Language Support** | Python only | Any language with HTTP |
+| **Load Balancing** | No | Yes |
+| **Authentication** | No | Can add OAuth/JWT |
+
+### Starting the Streamable HTTP Server
+
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Run MCP Streamable HTTP server
+python mcp_streamable_server.py
+
+# Server will be available at:
+# - JSON-RPC endpoint: http://localhost:8002/mcp
+# - SSE streaming: http://localhost:8002/mcp/stream
+```
+
+### API Usage Examples
+
+#### Python Client
+
+```python
+import httpx
+import asyncio
+
+async def query_database():
+    async with httpx.AsyncClient() as client:
+        request = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "answer_database_question",
+                "arguments": {
+                    "question": "How many patients are registered?"
+                }
+            },
+            "id": 1
+        }
+
+        response = await client.post(
+            "http://localhost:8002/mcp",
+            json=request
+        )
+        return response.json()
+
+# Run the query
+result = asyncio.run(query_database())
+print(result)
+```
+
+#### JavaScript/Node.js Client
+
+```javascript
+const axios = require('axios');
+
+async function queryDatabase() {
+    const response = await axios.post('http://localhost:8002/mcp', {
+        jsonrpc: '2.0',
+        method: 'tools/call',
+        params: {
+            name: 'execute_sql',
+            arguments: {
+                query: 'SELECT COUNT(*) FROM pasien'
+            }
+        },
+        id: 1
+    });
+
+    console.log(response.data);
+}
+
+queryDatabase();
+```
+
+#### cURL Example
+
+```bash
+curl -X POST http://localhost:8002/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+        "name": "execute_sql",
+        "arguments": {"query": "SELECT * FROM pasien LIMIT 10"}
+    },
+    "id": 1
+}'
+```
+
+#### Go Client
+
+```go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "net/http"
+)
+
+type MCPRequest struct {
+    JSONRPC string      `json:"jsonrpc"`
+    Method  string      `json:"method"`
+    Params  interface{} `json:"params"`
+    ID      int         `json:"id"`
+}
+
+func queryDatabase() {
+    request := MCPRequest{
+        JSONRPC: "2.0",
+        Method:  "tools/call",
+        Params: map[string]interface{}{
+            "name": "answer_database_question",
+            "arguments": map[string]string{
+                "question": "Show recent patient registrations",
+            },
+        },
+        ID: 1,
+    }
+
+    jsonData, _ := json.Marshal(request)
+    resp, _ := http.Post("http://localhost:8002/mcp",
+                         "application/json",
+                         bytes.NewBuffer(jsonData))
+    // Handle response...
+}
+```
+
+### Available MCP Methods
+
+#### 1. Initialize Connection
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "initialize",
+    "params": {
+        "protocolVersion": "1.0.0",
+        "capabilities": {}
+    },
+    "id": 1
+}
+```
+
+#### 2. Execute SQL Query
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+        "name": "execute_sql",
+        "arguments": {
+            "query": "SELECT * FROM dokter LIMIT 5"
+        }
+    },
+    "id": 2
+}
+```
+
+#### 3. Natural Language Query
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+        "name": "answer_database_question",
+        "arguments": {
+            "question": "What are the top 5 most visited departments?",
+            "user_context": {
+                "department": "analytics",
+                "access_level": "read_only"
+            }
+        }
+    },
+    "id": 3
+}
+```
+
+#### 4. List Database Resources
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "resources/list",
+    "params": {},
+    "id": 4
+}
+```
+
+#### 5. Read Table Data
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "resources/read",
+    "params": {
+        "uri": "table://pasien"
+    },
+    "id": 5
+}
+```
+
+### Streaming Responses (Server-Sent Events)
+
+For long-running queries, use the SSE endpoint for real-time streaming:
+
+```python
+import httpx
+import json
+
+async def stream_query():
+    async with httpx.AsyncClient() as client:
+        request = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "answer_database_question",
+                "arguments": {
+                    "question": "Analyze patient registration trends"
+                }
+            },
+            "id": 1
+        }
+
+        async with client.stream("POST", "http://localhost:8002/mcp/stream",
+                                  json=request,
+                                  headers={"Accept": "text/event-stream"}) as response:
+            async for line in response.aiter_lines():
+                if line.startswith("data: "):
+                    event_data = json.loads(line[6:])
+                    print(f"Event: {event_data}")
+```
+
+### Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Your Applications                     │
+├──────────────┬────────────┬────────────┬────────────────┤
+│   Web App    │ Mobile App │ Microservice│   CLI Tool    │
+└──────┬───────┴──────┬─────┴──────┬─────┴────────┬───────┘
+       │              │            │              │
+       └──────────────┴────────────┴──────────────┘
+                           │
+                    HTTP/JSON-RPC 2.0
+                           │
+                           ▼
+        ┌──────────────────────────────────────┐
+        │   MCP Streamable HTTP Server         │
+        │   http://localhost:8002/mcp          │
+        ├──────────────────────────────────────┤
+        │ • JSON-RPC 2.0 Protocol              │
+        │ • Server-Sent Events (SSE)           │
+        │ • Session Management                 │
+        │ • CORS Support                       │
+        └────────────────┬─────────────────────┘
+                         │
+                         ▼
+        ┌──────────────────────────────────────┐
+        │   Query Intelligence Service         │
+        │ • Natural Language Processing        │
+        │ • Healthcare Context Awareness       │
+        │ • SQL Generation & Validation        │
+        └────────────────┬─────────────────────┘
+                         │
+                         ▼
+        ┌──────────────────────────────────────┐
+        │        MySQL Database                │
+        │     (allammedica - Healthcare)       │
+        └──────────────────────────────────────┘
+```
+
+### Migration Strategy
+
+1. **Phase 1**: Keep existing server on port 8001
+2. **Phase 2**: Start Streamable HTTP on port 8002
+3. **Phase 3**: Test with `client_example.py`
+4. **Phase 4**: Gradually migrate applications
+5. **Phase 5**: Add authentication layer for production
+
+### Security Considerations
+
+When exposing the MCP server via HTTP:
+
+1. **Authentication**: Implement JWT or OAuth2
+2. **Rate Limiting**: Add request throttling
+3. **CORS**: Configure allowed origins properly
+4. **HTTPS**: Use TLS certificates in production
+5. **Query Validation**: Already implemented
+6. **Audit Logging**: Track all queries
+
+### Full Client Example
+
+See `client_example.py` for a complete Python client implementation with:
+- Connection initialization
+- SQL query execution
+- Natural language queries
+- Streaming responses
+- Resource listing
+- Error handling
+
 ## 🧪 Development & Testing
 
 ### Development Setup
